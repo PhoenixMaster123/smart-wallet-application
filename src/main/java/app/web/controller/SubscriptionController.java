@@ -34,7 +34,7 @@ public class SubscriptionController {
 
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setViewName("subscription-history");
-        modelAndView.addObject("user", user)
+        modelAndView.addObject("user", user);
 
         return modelAndView;
     }
