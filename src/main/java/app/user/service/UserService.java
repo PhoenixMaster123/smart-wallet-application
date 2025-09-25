@@ -14,7 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -73,5 +75,18 @@ public class UserService {
         subscriptionService.createDefaultSubscription(newUser);
 
         log.info("User {} registered successfully", newUser.getUsername());
+    }
+
+    public List<User> getAll() {
+        return userRepository.findAll();
+    }
+
+    public User getByUsername(String username) {
+
+        return userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    public User getById(UUID id) {
+        return  userRepository.findById(id).orElseThrow(() -> new RuntimeException("User by id " + id + " not found"));
     }
 }

@@ -4,9 +4,11 @@ import app.user.model.Country;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 
 
 // Notes: records are immutable
+@Builder
 public record RegisterRequest(
     @NotBlank
     @Size(min = 6, max = 20, message = "Username must be between 6 and 20 characters")
