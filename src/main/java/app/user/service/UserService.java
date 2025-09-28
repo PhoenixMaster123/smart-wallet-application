@@ -54,17 +54,17 @@ public class UserService {
 
     @Transactional // That means every method will be executed successfully or rollback
     public void register(RegisterRequest registerRequest) {
-        Optional<User> user = userRepository.findByUsername(registerRequest.username());
+        Optional<User> user = userRepository.findByUsername(registerRequest.getUsername());
 
         if(user.isPresent()) {
             throw new RuntimeException("Username already exists");
         }
 
         User newUser = User.builder()
-                .username(registerRequest.username())
-                .password(passwordEncoder.encode(registerRequest.password()))
+                .username(registerRequest.getUsername())
+                .password(passwordEncoder.encode(registerRequest.getPassword()))
                 .role(UserRole.USER)
-                .country(registerRequest.country())
+                .country(registerRequest.getCountry())
                 .active(true)
                 .createdOn(LocalDateTime.now())
                 .updatedOn(LocalDateTime.now())

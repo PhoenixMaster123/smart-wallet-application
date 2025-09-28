@@ -4,9 +4,12 @@ import app.user.model.User;
 import app.user.property.UserProperties;
 import app.user.service.UserService;
 import app.web.dto.RegisterRequest;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -61,6 +64,18 @@ public class IndexController {
 
 
         return modelAndView;
+    }
+
+    @PostMapping("/register")
+    public ModelAndView register(@Valid RegisterRequest request, BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+            return new ModelAndView("register");
+        }
+
+        userService.register(request);
+
+        return new ModelAndView("redirect:/home");
     }
 
     @GetMapping("/home")
