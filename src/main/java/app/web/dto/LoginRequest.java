@@ -2,13 +2,23 @@ package app.web.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public record LoginRequest(
-        @NotBlank
-        @Size(min = 6, max = 20, message = "Username must be between 6 and 20 characters")
-        String username,
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class LoginRequest {
 
-        @NotBlank
-        @Size(min = 6, max = 6, message = "Password must be exactly 6 characters")
-        String password
-) {}
+    @NotBlank
+    @Size(min = 6, max = 26, message = "Username must be between 6 and 26 characters")
+    String username;
+
+    @NotBlank
+    @Size(min = 6, max = 6, message = "Password must be exactly 6 characters")
+    String password;
+
+}
