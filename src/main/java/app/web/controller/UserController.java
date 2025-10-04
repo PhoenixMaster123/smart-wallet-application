@@ -2,10 +2,15 @@ package app.web.controller;
 
 import app.user.model.User;
 import app.user.service.UserService;
+import app.web.dto.EditProfileRequest;
+import app.web.mapper.DtoMapper;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -27,9 +32,11 @@ public class UserController {
     public ModelAndView getProfilePage(@PathVariable UUID id) {
 
         User user = userService.getById(id);
+        EditProfileRequest editProfileRequest = DtoMapper.fromUser(user);
 
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setViewName("profile-menu");
+        modelAndView.addObject("editProfileRequest", editProfileRequest);
         modelAndView.addObject("user", user);
 
         return modelAndView;
@@ -45,5 +52,20 @@ public class UserController {
         modelAndView.addObject("users", users);
 
         return modelAndView;
+    }
+
+    @PutMapping("{id}/profile")
+    public ModelAndView updateProfile(@Valid EditProfileRequest editProfileRequest, @PathVariable UUID id, BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+            User user = userService.getById(id);
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.setViewName("profile-menu");
+            modelAndView.addObject("user", user);
+        }
+
+        userService.updateProfile(editProfileRequest, id);
+
+        return new ModelAndView("redirect:/home");
     }
 }

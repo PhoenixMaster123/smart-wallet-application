@@ -3,10 +3,13 @@ package app.user.service;
 import app.subscription.service.SubscriptionService;
 import app.user.model.User;
 import app.user.model.UserRole;
+import app.user.property.UserProperties;
 import app.user.repository.UserRepository;
 import app.wallet.service.WalletService;
+import app.web.dto.EditProfileRequest;
 import app.web.dto.LoginRequest;
 import app.web.dto.RegisterRequest;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,23 +29,25 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final WalletService walletService;
     private final SubscriptionService subscriptionService;
+    private final UserProperties userProperties;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, WalletService walletService, SubscriptionService subscriptionService) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, WalletService walletService, SubscriptionService subscriptionService, UserProperties userProperties) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.walletService = walletService;
         this.subscriptionService = subscriptionService;
+        this.userProperties = userProperties;
     }
 
     public User login(LoginRequest loginRequest) {
-        Optional<User> user = userRepository.findByUsername(loginRequest.username());
+        Optional<User> user = userRepository.findByUsername(loginRequest.getUsername());
 
         if(user.isEmpty()) {
             throw new RuntimeException("Incorrect username or password.");
         }
 
-        String rawPassword = loginRequest.password();
+        String rawPassword = loginRequest.getPassword();
         String hashedPassword = user.get().getPassword();
 
         if(!passwordEncoder.matches(rawPassword, hashedPassword)) {
@@ -88,5 +93,20 @@ public class UserService {
 
     public User getById(UUID id) {
         return  userRepository.findById(id).orElseThrow(() -> new RuntimeException("User by id " + id + " not found"));
+    }
+
+    public User getDefaultUser() {
+        return getByUsername(userProperties.getDefaultUser().getUsername());
+    }
+
+    public void updateProfile(EditProfileRequest editProfileRequest, UUID id) {
+        User user = getById(id);
+
+        user.setFirstName(editProfileRequest.getFirstName());
+        user.setLastName(editProfileRequest.getLastName());
+        user.setEmail(editProfileRequest.getEmail());
+        user.setProfilePicture(editProfileRequest.getProfilePicture());
+
+        userRepository.save(user);
     }
 }
