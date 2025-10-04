@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Currency;
+import java.util.UUID;
 
 @Service
 public class TransactionService {
@@ -39,5 +40,13 @@ public class TransactionService {
                 .build();
 
         return transactionRepository.save(transaction);
+    }
+
+    public Transaction upsert(Transaction transaction) {
+        return this.transactionRepository.save(transaction);
+    }
+
+    public Transaction getById(UUID id) {
+        return transactionRepository.findById(id).orElseThrow(() -> new RuntimeException("Transaction by id " + id + " not found"));
     }
 }
