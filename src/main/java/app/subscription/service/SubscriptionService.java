@@ -11,7 +11,6 @@ import app.user.model.User;
 import app.wallet.service.WalletService;
 import app.web.dto.UpgradeRequest;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -76,7 +75,7 @@ public class SubscriptionService {
         if(upgradeRequest.getPeriod() == SubscriptionPeriod.MONTHLY) {
             expiryOn =  now.plusMonths(1).truncatedTo(ChronoUnit.DAYS);
         } else {
-            expiryOn = now.plusYears(1);
+            expiryOn = now.plusYears(1).truncatedTo(ChronoUnit.DAYS);
         }
 
         Subscription newActiveSubscription = Subscription.builder()
