@@ -1,5 +1,6 @@
 package app.wallet.service;
 
+import app.event.SuccessfulChargeEvent;
 import app.transaction.model.Transaction;
 import app.transaction.model.TransactionStatus;
 import app.transaction.model.TransactionType;
@@ -12,6 +13,7 @@ import app.web.dto.TransferRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,10 +38,14 @@ public class WalletService {
     private final WalletRepository walletRepository;
     private final TransactionService transactionService;
 
+    // Event publisher -> Used for emitting events
+    private final ApplicationEventPublisher eventPublisher;
+
     @Autowired
-    public WalletService(WalletRepository walletRepository, TransactionService transactionService) {
+    public WalletService(WalletRepository walletRepository, TransactionService transactionService, ApplicationEventPublisher eventPublisher) {
         this.walletRepository = walletRepository;
         this.transactionService = transactionService;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -74,6 +80,15 @@ public class WalletService {
             wallet.setUpdatedOn(LocalDateTime.now());
             walletRepository.save(wallet);
         }
+
+        SuccessfulChargeEvent event = SuccessfulChargeEvent.builder()
+                .userId(user.getId())
+                .walletId(walletId)
+                .amount(amount)
+                .email(user.getEmail())
+                .createdOn(LocalDateTime.now())
+                .build();
+        eventPublisher.publishEvent(event); // Checks all listener events and will call them
 
         transaction.setBalanceLeft(wallet.getBalance());
 
