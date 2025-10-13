@@ -109,6 +109,7 @@
         <div class="profile-status-role-container">
           <p th:if="${user.isActive()}" class="active-profile">ACTIVE</p>
           <p th:if="${!user.isActive()}" class="inactive-profile">ACTIVE</p>
+          <p th:text="${user.role}" class="user-role-container" >USER_ROLE</p>
         </div>
         <div class="details-section">
           <div class="details-section-container">
@@ -216,6 +217,7 @@
     </div>
   </div>
 </main>
-<div class="footer"><p>© 2025 Smart Wallet. All rights reserved.</p></div>
+<th:block th:if="${user.role.name() == 'ADMIN'}" th:insert="fragments/footer :: footer-admin"></th:block>
+<th:block th:unless="${user.role.name() == 'ADMIN'}" th:insert="fragments/footer :: footer"></th:block>
 </body>
 </html>

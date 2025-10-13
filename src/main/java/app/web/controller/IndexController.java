@@ -12,7 +12,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.UUID;
 
@@ -20,12 +22,10 @@ import java.util.UUID;
 public class IndexController {
 
     private final UserService userService;
-    private final UserProperties userProperties;
 
     @Autowired
-    public IndexController(UserService userService, UserProperties userProperties) {
+    public IndexController(UserService userService) {
         this.userService = userService;
-        this.userProperties = userProperties;
     }
 
     @GetMapping("/")
@@ -42,10 +42,11 @@ public class IndexController {
 //    }
 
     @GetMapping("/login")
-    public ModelAndView getLoginPage() {
+    public ModelAndView getLoginPage(@RequestParam(name = "loginAttemptMessage", required = false) String message) {
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setViewName("login");
         modelAndView.addObject("loginRequest", new LoginRequest());
+        modelAndView.addObject("loginAttemptMessage", message);
 
         return modelAndView;
     }
@@ -88,13 +89,14 @@ public class IndexController {
     }
 
     @PostMapping("/register")
-    public ModelAndView register(@Valid RegisterRequest request, BindingResult bindingResult) {
+    public ModelAndView register(@Valid RegisterRequest registerRequest, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
 
         if (bindingResult.hasErrors()) {
             return new ModelAndView("register");
         }
 
-        userService.register(request);
+        userService.register(registerRequest);
+        redirectAttributes.addFlashAttribute("successfulRegistration", "You have registered successfully");
 
         return new ModelAndView("redirect:/login");
     }
