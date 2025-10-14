@@ -9,9 +9,10 @@ import app.wallet.service.WalletService;
 import app.web.dto.EditProfileRequest;
 import app.web.dto.LoginRequest;
 import app.web.dto.RegisterRequest;
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,6 +59,7 @@ public class UserService {
     }
 
     @Transactional // That means every method will be executed successfully or rollback
+    @CacheEvict(value = "users", allEntries = true)
     public void register(RegisterRequest registerRequest) {
         Optional<User> user = userRepository.findByUsername(registerRequest.getUsername());
 
@@ -82,6 +84,7 @@ public class UserService {
         log.info("User {} registered successfully", newUser.getUsername());
     }
 
+    @Cacheable("users")
     public List<User> getAll() {
         return userRepository.findAll();
     }
@@ -99,6 +102,7 @@ public class UserService {
         return getByUsername(userProperties.getDefaultUser().getUsername());
     }
 
+    @CacheEvict(value = "users", allEntries = true)
     public void updateProfile(EditProfileRequest editProfileRequest, UUID id) {
         User user = getById(id);
 
