@@ -23,7 +23,7 @@ public class SuccessfulChargeEvent {
 
     private BigDecimal amount;
 
-    LocalDateTime createdOn;
+    private LocalDateTime createdOn;
 }
 
 // NOTE: EVENT Object -> Used to communicate between services (e.g., via message broker)

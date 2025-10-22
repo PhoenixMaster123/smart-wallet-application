@@ -1,13 +1,13 @@
 package app.web.controller;
 
+import app.security.UserData;
 import app.user.model.User;
-import app.user.property.UserProperties;
 import app.user.service.UserService;
 import app.web.dto.LoginRequest;
 import app.web.dto.RegisterRequest;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.util.UUID;
 
 @Controller
 public class IndexController {
@@ -51,18 +49,19 @@ public class IndexController {
         return modelAndView;
     }
 
-    @PostMapping("/login")
-    public ModelAndView login(@Valid LoginRequest loginRequest, BindingResult bindingResult, HttpSession session) {
-
-        if (bindingResult.hasErrors()) {
-            return new ModelAndView("login");
-        }
-
-        User user = userService.login(loginRequest);
-        session.setAttribute("userId", user.getId());
-
-        return new ModelAndView("redirect:/home");
-    }
+    /////////////////////////// We don't need this anymore because Spring Security is doing it /////////////////////////
+//    @PostMapping("/login")
+//    public ModelAndView login(@Valid LoginRequest loginRequest, BindingResult bindingResult, HttpSession session) {
+//
+//        if (bindingResult.hasErrors()) {
+//            return new ModelAndView("login");
+//        }
+//
+//        User user = userService.login(loginRequest);
+//        session.setAttribute("userId", user.getId());
+//
+//        return new ModelAndView("redirect:/home");
+//    }
 
     @GetMapping("/register")
     public ModelAndView getRegisterPage() {
@@ -102,11 +101,12 @@ public class IndexController {
     }
 
     @GetMapping("/home")
-    public ModelAndView getHomePage(HttpSession session) {
+    public ModelAndView getHomePage(@AuthenticationPrincipal UserData userData) {
 
         //User user = userService.getByUsername(userProperties.getDefaultUser().getUsername());
-        UUID userId = (UUID) session.getAttribute("userId");
-        User user = userService.getById(userId);
+//        UUID userId = (UUID) session.getAttribute("userId");
+//        User user = userService.getById(userId);
+        User user = userService.getById(userData.getUserId());
 
         ModelAndView modelAndView = new ModelAndView();
 
@@ -116,11 +116,12 @@ public class IndexController {
         return modelAndView;
     }
 
-    @GetMapping("/logout")
-    public String logout(HttpSession session) {
-
-        session.invalidate();
-
-        return "redirect:/";
-    }
+    /////////////////////////// We don't need this anymore because Spring Security is doing it /////////////////////////
+//    @GetMapping("/logout")
+//    public String logout(HttpSession session) {
+//
+//        session.invalidate();
+//
+//        return "redirect:/";
+//    }
 }

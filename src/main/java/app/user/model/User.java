@@ -41,6 +41,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
+//    List<String> permissions; TODO - permissions
+
     @Enumerated(EnumType.STRING)
     private Country country;
 
