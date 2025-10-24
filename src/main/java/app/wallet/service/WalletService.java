@@ -10,8 +10,6 @@ import app.wallet.model.Wallet;
 import app.wallet.model.WalletStatus;
 import app.wallet.repository.WalletRepository;
 import app.web.dto.TransferRequest;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -34,6 +32,11 @@ public class WalletService {
 
     private static final BigDecimal INITIAL_WALLET_BALANCE = new BigDecimal("20.00");
     private static final Currency DEFAULT_WALLET_CURRENCY = Currency.getInstance("EUR");
+
+    private static final String FIRST_WALLET_NICKNAME = "Vault Zero";
+    private static final String SECONT_WALLET_NICKNAME = "Nova Flow";
+    private static final String THIRD_WALLET_NICKNAME = "Pulse Pay";
+
 
     private final WalletRepository walletRepository;
     private final TransactionService transactionService;
@@ -151,10 +154,12 @@ public class WalletService {
         Wallet wallet = Wallet.builder()
                 .owner(user)
                 .status(WalletStatus.ACTIVE)
+                .nickname(FIRST_WALLET_NICKNAME)
                 .balance(INITIAL_WALLET_BALANCE)
                 .currency(DEFAULT_WALLET_CURRENCY)
                 .createdOn(LocalDateTime.now())
                 .updatedOn(LocalDateTime.now())
+                .main(true)
                 .build();
 
         walletRepository.save(wallet);

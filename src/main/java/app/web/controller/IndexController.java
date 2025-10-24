@@ -3,6 +3,7 @@ package app.web.controller;
 import app.security.UserData;
 import app.user.model.User;
 import app.user.service.UserService;
+import app.wallet.model.Wallet;
 import app.web.dto.LoginRequest;
 import app.web.dto.RegisterRequest;
 import jakarta.validation.Valid;
@@ -40,11 +41,14 @@ public class IndexController {
 //    }
 
     @GetMapping("/login")
-    public ModelAndView getLoginPage(@RequestParam(name = "loginAttemptMessage", required = false) String message) {
+    public ModelAndView getLoginPage(@RequestParam(name = "loginAttemptMessage", required = false) String message, @RequestParam(name = "error", required = false) String errorMessage) {
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setViewName("login");
         modelAndView.addObject("loginRequest", new LoginRequest());
         modelAndView.addObject("loginAttemptMessage", message);
+        if(errorMessage != null) {
+            modelAndView.addObject("errorMessage", "Invalid username or password");
+        }
 
         return modelAndView;
     }
@@ -112,6 +116,7 @@ public class IndexController {
 
         modelAndView.setViewName("home");
         modelAndView.addObject("user", user);
+        modelAndView.addObject("primaryWallet", user.getWallets().stream().filter(Wallet::isMain).findFirst().get());
 
         return modelAndView;
     }
