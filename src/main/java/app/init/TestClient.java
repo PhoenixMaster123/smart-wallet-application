@@ -5,8 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "notification-svc", url = "localhost:8081/api/v1")
-public interface NotificationClient {
+@FeignClient(name = "test-svc", url = "localhost:8086/api/v1")
+public interface TestClient {
 
     @GetMapping("/notifications/say-hello")
     ResponseEntity<String> getHelloMessage();

@@ -1,11 +1,14 @@
 package app.user.service;
 
+import app.notification.service.NotificationService;
 import app.security.UserData;
+import app.subscription.model.Subscription;
 import app.subscription.service.SubscriptionService;
 import app.user.model.User;
 import app.user.model.UserRole;
 import app.user.property.UserProperties;
 import app.user.repository.UserRepository;
+import app.wallet.model.Wallet;
 import app.wallet.service.WalletService;
 import app.web.dto.EditProfileRequest;
 import app.web.dto.RegisterRequest;
@@ -33,14 +36,16 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final WalletService walletService;
     private final SubscriptionService subscriptionService;
+    private final NotificationService notificationService;
     private final UserProperties userProperties;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, WalletService walletService, SubscriptionService subscriptionService, UserProperties userProperties) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, WalletService walletService, SubscriptionService subscriptionService, NotificationService notificationService, UserProperties userProperties) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.walletService = walletService;
         this.subscriptionService = subscriptionService;
+        this.notificationService = notificationService;
         this.userProperties = userProperties;
     }
 
@@ -64,14 +69,14 @@ public class UserService implements UserDetailsService {
 
     @Transactional // That means every method will be executed successfully or rollback
     @CacheEvict(value = "users", allEntries = true)
-    public void register(RegisterRequest registerRequest) {
-        Optional<User> user = userRepository.findByUsername(registerRequest.getUsername());
+    public User register(RegisterRequest registerRequest) {
+        Optional<User> userOpt = userRepository.findByUsername(registerRequest.getUsername());
 
-        if(user.isPresent()) {
+        if(userOpt.isPresent()) {
             throw new RuntimeException("Username already exists");
         }
 
-        User newUser = User.builder()
+        User user = User.builder()
                 .username(registerRequest.getUsername())
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
                 .role(UserRole.USER)
@@ -81,11 +86,18 @@ public class UserService implements UserDetailsService {
                 .updatedOn(LocalDateTime.now())
                 .build();
 
-        newUser = userRepository.save(newUser);
-        walletService.createDefaultWallet(newUser);
-        subscriptionService.createDefaultSubscription(newUser);
+        user = userRepository.save(user);
+        Wallet defaultWallet = walletService.createDefaultWallet(user);
+        Subscription defaultSubscription = subscriptionService.createDefaultSubscription(user);
 
-        log.info("User {} registered successfully", newUser.getUsername());
+        user.setWallets(List.of(defaultWallet));
+        user.setSubscriptions(List.of(defaultSubscription));
+
+        log.info("User {} registered successfully", user.getUsername());
+
+        notificationService.upsertPreference(user.getId(), false, null);
+
+        return user;
     }
 
     @Cacheable("users")

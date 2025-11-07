@@ -8,17 +8,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class TestInit implements ApplicationRunner {
 
-    private final NotificationClient notificationClient;
+    private final TestClient testClient;
 
-    public TestInit(NotificationClient notificationClient) {
-        this.notificationClient = notificationClient;
+    public TestInit(TestClient testClient) {
+        this.testClient = testClient;
     }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
-        ResponseEntity<String> response = notificationClient.getHelloMessage();
-        ResponseEntity<String> response2 = notificationClient.getGoodbyeMessage("John");
+        ResponseEntity<String> response = testClient.getHelloMessage();
+        ResponseEntity<String> response2 = testClient.getGoodbyeMessage("John");
 
         System.out.println(response.getBody());
 
