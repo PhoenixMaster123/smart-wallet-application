@@ -120,7 +120,14 @@ public class UserService implements UserDetailsService {
 
     @CacheEvict(value = "users", allEntries = true)
     public void updateProfile(EditProfileRequest editProfileRequest, UUID id) {
+
         User user = getById(id);
+
+        if(editProfileRequest.getEmail() != null && !editProfileRequest.getEmail().isBlank()) {
+            notificationService.upsertPreference(user.getId(), true, editProfileRequest.getEmail());
+        } else {
+            notificationService.upsertPreference(user.getId(), false, null);
+        }
 
         user.setFirstName(editProfileRequest.getFirstName());
         user.setLastName(editProfileRequest.getLastName());
@@ -130,7 +137,9 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
     }
 
+    @CacheEvict(value = "users", allEntries = true)
     public void switchStatus(UUID userId) {
+
         User user = getById(userId);
 
         // true -> false
@@ -142,6 +151,7 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
     }
 
+    @CacheEvict(value = "users", allEntries = true)
     public void switchRole(UUID userId) {
 
         User user = getById(userId);
@@ -157,10 +167,10 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
     }
 
-//  Every time with login operation, Spring Security will call this method to load the user details
-//  We this username (it can be email as well) we will fetch the user from the database
-//  Goal of this method is to load the user details from the database
-//  The return type is UserDetails which is an interface that contains the user details
+    //  Every time with login operation, Spring Security will call this method to load the user details
+    //  We this username (it can be email as well) we will fetch the user from the database
+    //  Goal of this method is to load the user details from the database
+    //  The return type is UserDetails which is an interface that contains the user details
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException { // if it's not a username, it will be email
 
