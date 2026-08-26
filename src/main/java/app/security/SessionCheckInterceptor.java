@@ -19,7 +19,8 @@
 //public class SessionCheckInterceptor implements HandlerInterceptor {
 //
 //    public static final Set<String> UNAUTHENTICATED_ENDPOINTS = Set.of("/login", "/register", "/");
-//    private static final String INACTIVE_PROFILE_REDIRECT_MESSAGE = "Your profile is inactive. Please contact the administrator.";
+//    private static final String INACTIVE_PROFILE_REDIRECT_MESSAGE =
+//            "Your profile is inactive. Please contact the administrator.";
 //
 //    private final UserService userService;
 //
@@ -29,22 +30,23 @@
 //    }
 //
 //    @Override
-//    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+//    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+//            throws Exception {
 //
-//        if(UNAUTHENTICATED_ENDPOINTS.contains(request.getServletPath())) {
+//        if (UNAUTHENTICATED_ENDPOINTS.contains(request.getServletPath())) {
 //            return true;
 //        }
 //
 //        HttpSession session = request.getSession(false);
 //
-//        if(session == null) {
+//        if (session == null) {
 //            response.sendRedirect("/login");
 //            return false;
 //        }
 //
 //        UUID userId = (UUID) session.getAttribute("userId");
 //
-//        if(userId == null) {
+//        if (userId == null) {
 //            session.invalidate();
 //            response.sendRedirect("/login");
 //            return false;
@@ -52,7 +54,7 @@
 //
 //        User user = userService.getById(userId);
 //
-//        if(!user.isActive()) {
+//        if (!user.isActive()) {
 //            session.invalidate();
 //            response.sendRedirect("/login?loginAttemptMessage=" + INACTIVE_PROFILE_REDIRECT_MESSAGE);
 //            return false;

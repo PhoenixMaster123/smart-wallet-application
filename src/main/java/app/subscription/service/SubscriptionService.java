@@ -48,9 +48,10 @@ public class SubscriptionService {
 
     public Transaction upgrade(User user, UpgradeRequest upgradeRequest, SubscriptionType subscriptionType) {
 
-        Optional<Subscription> currentActiveSubscriptionOpt = subscriptionRepository.findByStatusAndOwnerId(SubscriptionStatus.ACTIVE, user.getId());
+        Optional<Subscription> currentActiveSubscriptionOpt =
+                subscriptionRepository.findByStatusAndOwnerId(SubscriptionStatus.ACTIVE, user.getId());
 
-        if(currentActiveSubscriptionOpt.isEmpty()) {
+        if (currentActiveSubscriptionOpt.isEmpty()) {
             throw new RuntimeException("User has no active subscription");
         }
 
@@ -59,9 +60,10 @@ public class SubscriptionService {
         BigDecimal subscriptionPrice = getUpgradePrice(subscriptionType, upgradeRequest.getPeriod());
         String chargeDescription = "Upgrade request for %s %s".formatted(upgradeRequest.getPeriod(), subscriptionType);
 
-        Transaction chargeResultTransaction = walletService.withdrawal(user, upgradeRequest.getWalletId(), subscriptionPrice, chargeDescription);
+        Transaction chargeResultTransaction = walletService.withdrawal(user, upgradeRequest.getWalletId(),
+                subscriptionPrice, chargeDescription);
 
-        if(chargeResultTransaction.getStatus() == TransactionStatus.FAILED) {
+        if (chargeResultTransaction.getStatus() == TransactionStatus.FAILED) {
             return chargeResultTransaction;
         }
 
@@ -71,7 +73,7 @@ public class SubscriptionService {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expiryOn;
 
-        if(upgradeRequest.getPeriod() == SubscriptionPeriod.MONTHLY) {
+        if (upgradeRequest.getPeriod() == SubscriptionPeriod.MONTHLY) {
             expiryOn =  now.plusMonths(1).truncatedTo(ChronoUnit.DAYS);
         } else {
             expiryOn = now.plusYears(1).truncatedTo(ChronoUnit.DAYS);
@@ -102,18 +104,19 @@ public class SubscriptionService {
 
     private BigDecimal getUpgradePrice(SubscriptionType subscriptionType, SubscriptionPeriod period) {
 
-        if(subscriptionType == SubscriptionType.DEFAULT) {
+        if (subscriptionType == SubscriptionType.DEFAULT) {
             return BigDecimal.ZERO;
-        } else if(subscriptionType == SubscriptionType.PREMIUM && period == SubscriptionPeriod.MONTHLY) {
+        } else if (subscriptionType == SubscriptionType.PREMIUM && period == SubscriptionPeriod.MONTHLY) {
             return BigDecimal.valueOf(19.99);
-        }  else if(subscriptionType == SubscriptionType.PREMIUM && period == SubscriptionPeriod.YEARLY) {
+        }  else if (subscriptionType == SubscriptionType.PREMIUM && period == SubscriptionPeriod.YEARLY) {
             return BigDecimal.valueOf(199.99);
-        }  else if(subscriptionType == SubscriptionType.ULTIMATE && period == SubscriptionPeriod.MONTHLY) {
+        }  else if (subscriptionType == SubscriptionType.ULTIMATE && period == SubscriptionPeriod.MONTHLY) {
             return BigDecimal.valueOf(49.99);
-        }  else if(subscriptionType == SubscriptionType.ULTIMATE && period == SubscriptionPeriod.YEARLY) {
+        }  else if (subscriptionType == SubscriptionType.ULTIMATE && period == SubscriptionPeriod.YEARLY) {
             return BigDecimal.valueOf(499.99);
         }
 
-        throw new RuntimeException("Price for subscription type %s and period %s not found".formatted(subscriptionType, period));
+        throw new RuntimeException(
+                "Price for subscription type %s and period %s not found".formatted(subscriptionType, period));
     }
 }

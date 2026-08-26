@@ -24,7 +24,10 @@ public class TransactionService {
         this.transactionRepository = transactionRepository;
     }
 
-    public Transaction createNewTransaction(User owner, String sender, String receiver, BigDecimal amount, BigDecimal balanceLeft, Currency currency, TransactionType type, TransactionStatus status, String description, String failureReason) {
+    public Transaction createNewTransaction(User owner, String sender, String receiver, BigDecimal amount,
+                                            BigDecimal balanceLeft, Currency currency, TransactionType type,
+                                            TransactionStatus status, String description,
+                                            String failureReason) {
 
         Transaction transaction = Transaction.builder()
                 .owner(owner)
@@ -48,7 +51,8 @@ public class TransactionService {
     }
 
     public Transaction getById(UUID id) {
-        return transactionRepository.findById(id).orElseThrow(() -> new RuntimeException("Transaction by id " + id + " not found"));
+        return transactionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Transaction by id " + id + " not found"));
     }
 
     public List<Transaction> getAllByUserId(UUID userId) {

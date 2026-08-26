@@ -42,7 +42,8 @@ public class WalletService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
-    public WalletService(WalletRepository walletRepository, TransactionService transactionService, ApplicationEventPublisher eventPublisher) {
+    public WalletService(WalletRepository walletRepository, TransactionService transactionService,
+                         ApplicationEventPublisher eventPublisher) {
         this.walletRepository = walletRepository;
         this.transactionService = transactionService;
         this.eventPublisher = eventPublisher;
@@ -52,7 +53,7 @@ public class WalletService {
     public Transaction withdrawal(User user, UUID walletId, BigDecimal amount, String description) {
 
         Wallet wallet = getById(walletId);
-        
+
         Transaction transaction = Transaction.builder()
                 .owner(user)
                 .sender(wallet.getId().toString())
@@ -113,7 +114,7 @@ public class WalletService {
 
         Wallet wallet = getById(walletId);
 
-        if(wallet.getStatus() == WalletStatus.INACTIVE) {
+        if (wallet.getStatus() == WalletStatus.INACTIVE) {
 
             return transactionService.createNewTransaction(
                     wallet.getOwner(),
@@ -164,7 +165,8 @@ public class WalletService {
     }
 
     private Wallet getById(UUID walletId) {
-        return walletRepository.findById(walletId).orElseThrow(() -> new RuntimeException("Wallet by id " + walletId + " not found"));
+        return walletRepository.findById(walletId)
+                .orElseThrow(() -> new RuntimeException("Wallet by id " + walletId + " not found"));
     }
 
     @Transactional
@@ -173,13 +175,16 @@ public class WalletService {
         Wallet senderWallet = getById(transferRequest.getWalletId());
         Wallet receiverWallet = getFirstByUsername(transferRequest.getRecipientUsername());
 
-        String transferDescription = TRANSFER_DESCRIPTION_FORMAT.formatted(senderWallet.getOwner().getUsername(), receiverWallet.getOwner().getUsername(), transferRequest.getAmount());
+        String transferDescription = TRANSFER_DESCRIPTION_FORMAT.formatted(
+                senderWallet.getOwner().getUsername(), receiverWallet.getOwner().getUsername(),
+                transferRequest.getAmount());
 
         // The authenticated user is passed through rather than the wallet's own
         // owner, so withdrawal() can actually reject a wallet id that is not theirs.
-        Transaction withdrawalTransaction = withdrawal(sender, senderWallet.getId(), transferRequest.getAmount(), transferDescription);
+        Transaction withdrawalTransaction =
+                withdrawal(sender, senderWallet.getId(), transferRequest.getAmount(), transferDescription);
 
-        if (withdrawalTransaction.getStatus() == TransactionStatus.SUCCEEDED ) {
+        if (withdrawalTransaction.getStatus() == TransactionStatus.SUCCEEDED) {
             deposit(receiverWallet.getId(), transferRequest.getAmount(), transferDescription);
         }
 

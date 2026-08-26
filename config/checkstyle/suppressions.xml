@@ -22,4 +22,8 @@
          camelCase the rule wants. The convention is deliberate, so exempt tests. -->
     <suppress files=".*(UTest|Tests)\.java" checks="MethodName"/>
 
+    <!-- Those same names, plus the @DisplayName sentence beside them, run past
+         120 characters and cannot be wrapped - a method name has no line break. -->
+    <suppress files=".*(UTest|Tests)\.java" checks="LineLength"/>
+
 </suppressions>
