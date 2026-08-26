@@ -116,7 +116,12 @@ public class IndexController {
 
         modelAndView.setViewName("home");
         modelAndView.addObject("user", user);
-        modelAndView.addObject("primaryWallet", user.getWallets().stream().filter(Wallet::isMain).findFirst().get());
+        Wallet primaryWallet = user.getWallets().stream()
+                .filter(Wallet::isMain)
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("User %s has no main wallet".formatted(user.getId())));
+
+        modelAndView.addObject("primaryWallet", primaryWallet);
 
         return modelAndView;
     }
