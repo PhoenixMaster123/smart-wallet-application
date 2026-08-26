@@ -108,7 +108,7 @@
         <h2 class="profile-name" th:text="${user.username}">Mandarin0016</h2>
         <div class="profile-status-role-container">
           <p th:if="${user.isActive()}" class="active-profile">ACTIVE</p>
-          <p th:if="${!user.isActive()}" class="inactive-profile">ACTIVE</p>
+          <p th:if="${!user.isActive()}" class="inactive-profile">INACTIVE</p>
           <p th:text="${user.role}" class="user-role-container" >USER_ROLE</p>
         </div>
         <div class="details-section">
@@ -129,7 +129,7 @@
         </div>
         <div class="details-section-container">
           <strong>Joined: </strong>
-          <p th:text="${#temporals.format(user.createdOn, 'dd MMM YYYY HH:mm')}">09 Dec 2024 21:39</p>
+          <p th:text="${#temporals.format(user.createdOn, 'dd MMM yyyy HH:mm')}">09 Dec 2024 21:39</p>
         </div>
         <div class="details-section-container">
           <strong>Country: </strong>
@@ -151,7 +151,7 @@
         <p th:if="${primaryWallet.status.name() == 'INACTIVE'}" class="inactive-wallet-status">INACTIVE</p>
       </div>
       <div class="wallet-balance">
-        <p class="balance" th:text="${user.wallets[0].balance + ' EUR'}">18.07 EUR</p>
+        <p class="balance" th:text="${primaryWallet.balance + ' EUR'}">18.07 EUR</p>
         <p class="available-balance-text">Available Balance</p>
       </div>
 
@@ -170,7 +170,7 @@
         </div>
         <div class="details-section-container">
           <strong>Last transaction on: </strong>
-          <p th:text="${#temporals.format(primaryWallet.updatedOn, 'dd MMM YYYY HH:mm')}">11 Dec 2024 21:32</p>
+          <p th:text="${#temporals.format(primaryWallet.updatedOn, 'dd MMM yyyy HH:mm')}">11 Dec 2024 21:32</p>
         </div>
       </div>
     </div>
@@ -211,13 +211,13 @@
         </div>
         <div class="details-section-container">
           <strong>Subscribe until: </strong>
-          <p th:text="${#temporals.format(user.subscriptions[0].expiryOn, 'dd MMM YYYY HH:mm')}">11 Jan 2025 21:29</p>
+          <p th:text="${#temporals.format(user.subscriptions[0].expiryOn, 'dd MMM yyyy HH:mm')}">11 Jan 2025 21:29</p>
         </div>
       </div>
     </div>
   </div>
 </main>
-<th:block th:if="${user.role.name() == 'ADMIN'}" th:insert="fragments/footer :: footer-admin"></th:block>
-<th:block th:unless="${user.role.name() == 'ADMIN'}" th:insert="fragments/footer :: footer"></th:block>
+<th:block th:if="${user.role.name() == 'ADMIN'}" th:insert="~{fragments/footer :: footer-admin}"></th:block>
+<th:block th:unless="${user.role.name() == 'ADMIN'}" th:insert="~{fragments/footer :: footer}"></th:block>
 </body>
 </html>
