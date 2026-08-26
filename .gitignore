@@ -1,0 +1,40 @@
+### Maven ###
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### Eclipse / VS Code ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+.vscode/
+
+### Local H2 database file (test profile) ###
+data/
+
+### Logs ###
+*.log
+
+### Local secrets ###
+.env
+
+### Claude Code session files (local only) ###
+.claude/
+
+### OS ###
+.DS_Store
+Thumbs.db
