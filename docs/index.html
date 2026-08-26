@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Wallet Application</title>
+<meta name="description" content="A Spring Boot wallet application: multi-wallet balances, transfers, subscription tiers and transaction history.">
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --border: #e2e5ea;
+    --ink: #14171c;
+    --ink-soft: #5b636e;
+    --accent: #1f7a5a;
+    --accent-soft: #e6f2ee;
+    --code-bg: #f0f2f5;
+    --shadow: 0 1px 2px rgba(20, 23, 28, .06), 0 8px 24px rgba(20, 23, 28, .05);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #101317;
+      --surface: #171b21;
+      --border: #272d36;
+      --ink: #e8eaed;
+      --ink-soft: #98a1ad;
+      --accent: #4ec49a;
+      --accent-soft: #16302743;
+      --code-bg: #1e242c;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 24px 96px; }
+
+  header {
+    padding: 72px 0 40px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+
+  .eyebrow {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 4px 10px;
+    border-radius: 100px;
+    margin-bottom: 18px;
+  }
+
+  h1 {
+    font-size: clamp(32px, 6vw, 46px);
+    line-height: 1.15;
+    letter-spacing: -.02em;
+    margin: 0 0 14px;
+  }
+
+  .lede { font-size: 19px; color: var(--ink-soft); margin: 0; max-width: 62ch; }
+
+  h2 {
+    font-size: 24px;
+    letter-spacing: -.01em;
+    margin: 56px 0 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  h3 { font-size: 17px; margin: 32px 0 8px; }
+
+  p { margin: 0 0 16px; }
+
+  a { color: var(--accent); }
+
+  code {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: .88em;
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    margin: 0 0 16px;
+  }
+
+  pre code { background: none; padding: 0; font-size: 13.5px; line-height: 1.6; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 14px;
+    margin: 24px 0;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+  }
+
+  .card h3 { margin: 0 0 6px; font-size: 15px; }
+  .card p { margin: 0; font-size: 14.5px; color: var(--ink-soft); }
+
+  .table-scroll { overflow-x: auto; margin: 0 0 16px; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14.5px; min-width: 460px; }
+
+  th, td {
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  th { font-weight: 600; font-size: 12.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-soft); }
+
+  td code { white-space: nowrap; }
+
+  .method {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  ul { margin: 0 0 16px; padding-left: 22px; }
+  li { margin-bottom: 6px; }
+
+  .note {
+    border-left: 3px solid var(--accent);
+    background: var(--accent-soft);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 0 0 16px;
+    font-size: 15px;
+  }
+
+  .note p:last-child { margin-bottom: 0; }
+
+  footer {
+    margin-top: 72px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    color: var(--ink-soft);
+    font-size: 14px;
+  }
+
+  .diagram { width: 100%; height: auto; display: block; margin: 8px 0 20px; }
+  .diagram text { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Spring Boot &middot; Java 17</span>
+  <h1>Smart Wallet Application</h1>
+  <p class="lede">
+    A server-rendered wallet service: users hold multiple currency wallets, transfer
+    funds to each other, and move between subscription tiers that are charged
+    against a wallet balance.
+  </p>
+</header>
+
+<h2>What it does</h2>
+
+<div class="grid">
+  <div class="card">
+    <h3>Wallets</h3>
+    <p>Every registered user gets a main EUR wallet seeded with a starting balance. Deposits and withdrawals are recorded as transactions.</p>
+  </div>
+  <div class="card">
+    <h3>Transfers</h3>
+    <p>A transfer is a withdrawal from the sender paired with a deposit to the recipient's first active wallet, inside one database transaction.</p>
+  </div>
+  <div class="card">
+    <h3>Subscriptions</h3>
+    <p>Default, Premium and Ultimate tiers on a monthly or yearly period. Upgrading charges the chosen wallet and completes the previous subscription.</p>
+  </div>
+  <div class="card">
+    <h3>Notifications</h3>
+    <p>Preferences are pushed to a separate notification service over an OpenFeign client. The call degrades to a logged warning when that service is down.</p>
+  </div>
+</div>
+
+<h2>How a transfer flows</h2>
+
+<svg class="diagram" viewBox="0 0 720 200" role="img" aria-label="A transfer request passes through the controller to the wallet service, which performs a withdrawal and a deposit, records both transactions and publishes a charge event.">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+  <g fill="none" stroke="currentColor" stroke-width="1.5" opacity=".85">
+    <rect x="8"   y="70" width="118" height="46" rx="8"/>
+    <rect x="176" y="70" width="128" height="46" rx="8"/>
+    <rect x="354" y="16" width="150" height="46" rx="8"/>
+    <rect x="354" y="124" width="150" height="46" rx="8"/>
+    <rect x="554" y="70" width="158" height="46" rx="8"/>
+    <path d="M126 93 H176" marker-end="url(#arrow)"/>
+    <path d="M304 93 H330 V39 H354" marker-end="url(#arrow)"/>
+    <path d="M304 93 H330 V147 H354" marker-end="url(#arrow)"/>
+    <path d="M504 39 H530 V93 H554" marker-end="url(#arrow)"/>
+    <path d="M504 147 H530 V93 H554" marker-end="url(#arrow)"/>
+  </g>
+  <g fill="currentColor" text-anchor="middle">
+    <text x="67"  y="90">Transfer</text><text x="67"  y="104">Controller</text>
+    <text x="240" y="90">Wallet</text><text x="240" y="104">Service</text>
+    <text x="429" y="36">withdrawal</text><text x="429" y="50">(sender wallet)</text>
+    <text x="429" y="144">deposit</text><text x="429" y="158">(recipient wallet)</text>
+    <text x="633" y="90">Transaction</text><text x="633" y="104">Service</text>
+  </g>
+</svg>
+
+<p>
+  The controller resolves the authenticated user and hands it to
+  <code>WalletService.transfer</code>, so the wallet id in the request is checked
+  against its real owner before any balance moves. A withdrawal that fails
+  ownership, an inactive wallet, or an insufficient balance is still persisted
+  as a <code>FAILED</code> transaction with a failure reason, and the deposit
+  never runs.
+</p>
+
+<h2>Running it locally</h2>
+
+<p>Requires JDK 17 and a MySQL instance on <code>localhost:3306</code>. The Maven wrapper is checked in, so no local Maven install is needed.</p>
+
+<pre><code>git clone https://github.com/PhoenixMaster123/smart-wallet-application.git
+cd smart-wallet-application
+
+./mvnw spring-boot:run</code></pre>
+
+<p>The app starts on <code>http://localhost:8080</code> and seeds a default user from <code>application.properties</code>.</p>
+
+<div class="note">
+  <p>
+    <strong>Profiles.</strong> <code>dev</code> is active by default and points at
+    a local MySQL; the schema is created on first run. Deploy with
+    <code>--spring.profiles.active=prod</code> and supply <code>DB_URL</code>,
+    <code>DB_USERNAME</code> and <code>DB_PASSWORD</code> as environment variables.
+  </p>
+</div>
+
+<h3>Without a database</h3>
+
+<p>To boot against an in-memory H2 instead — this is exactly what CI does:</p>
+
+<pre><code>./mvnw clean package
+java -jar target/smart-wallet-application-*.jar \
+  --spring.datasource.url='jdbc:h2:mem:local;DB_CLOSE_DELAY=-1' \
+  --spring.datasource.driverClassName=org.h2.Driver \
+  --spring.datasource.username=sa \
+  --spring.datasource.password= \
+  --spring.jpa.hibernate.ddl-auto=create-drop</code></pre>
+
+<h2>Routes</h2>
+
+<div class="table-scroll">
+<table>
+  <thead>
+    <tr><th>Route</th><th>Access</th><th>Purpose</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><span class="method">GET</span> <code>/</code></td><td>Public</td><td>Landing page</td></tr>
+    <tr><td><span class="method">GET</span> <code>/login</code></td><td>Public</td><td>Sign in</td></tr>
+    <tr><td><span class="method">GET</span> <code>/register</code></td><td>Public</td><td>Create an account</td></tr>
+    <tr><td><span class="method">GET</span> <code>/home</code></td><td>User</td><td>Dashboard: profile, main wallet, subscription</td></tr>
+    <tr><td><span class="method">GET</span> <code>/transfers</code></td><td>User</td><td>Send funds to another user</td></tr>
+    <tr><td><span class="method">GET</span> <code>/transactions</code></td><td>User</td><td>Transaction history</td></tr>
+    <tr><td><span class="method">GET</span> <code>/subscriptions</code></td><td>User</td><td>Compare and buy a tier</td></tr>
+    <tr><td><span class="method">GET</span> <code>/subscriptions/history</code></td><td>User</td><td>Past subscriptions</td></tr>
+    <tr><td><span class="method">GET</span> <code>/users/{id}/profile</code></td><td>Self or admin</td><td>View and edit a profile</td></tr>
+    <tr><td><span class="method">GET</span> <code>/users</code></td><td>Admin</td><td>User administration</td></tr>
+    <tr><td><span class="method">GET</span> <code>/reports</code></td><td>Admin</td><td>Reporting</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Architecture</h2>
+
+<p>Packages are organised by feature rather than by layer. Each of <code>user</code>, <code>wallet</code>, <code>transaction</code> and <code>subscription</code> owns its model, repository and service; <code>web</code> holds the controllers, DTOs and mappers that sit in front of them.</p>
+
+<ul>
+  <li><strong>Persistence</strong> — Spring Data JPA over MySQL, schema managed by Hibernate.</li>
+  <li><strong>Security</strong> — form login backed by <code>UserDetailsService</code>, with method-level <code>@PreAuthorize</code> guarding admin and per-user routes.</li>
+  <li><strong>Views</strong> — Thymeleaf templates with the Spring Security dialect.</li>
+  <li><strong>Events</strong> — a successful charge publishes an application event that the email and gift listeners handle asynchronously.</li>
+  <li><strong>Service calls</strong> — OpenFeign clients for the notification service, written to tolerate it being unavailable.</li>
+</ul>
+
+<h2>Quality gates</h2>
+
+<p>CI runs on every push and pull request against <code>master</code>. All three steps must pass:</p>
+
+<div class="table-scroll">
+<table>
+  <thead>
+    <tr><th>Step</th><th>Command</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Checkstyle</td><td><code>./mvnw checkstyle:check</code></td></tr>
+    <tr><td>Build and test</td><td><code>./mvnw clean verify</code></td></tr>
+    <tr><td>Boot smoke test</td><td>Runs the packaged jar and waits for startup</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>The Checkstyle rules in <code>config/checkstyle/checkstyle.xml</code> are structural rather than cosmetic: imports, naming, braces and common correctness traps. Formatting an IDE already handles is left out, so the build fails only on things worth failing on.</p>
+
+<footer>
+  <p>
+    Source on <a href="https://github.com/PhoenixMaster123/smart-wallet-application">GitHub</a>.
+    This page is published from <code>docs/</code> by the Pages workflow.
+  </p>
+</footer>
+
+</div>
+</body>
+</html>
