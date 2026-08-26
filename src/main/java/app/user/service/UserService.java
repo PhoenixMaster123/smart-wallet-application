@@ -40,7 +40,9 @@ public class UserService implements UserDetailsService {
     private final UserProperties userProperties;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, WalletService walletService, SubscriptionService subscriptionService, NotificationService notificationService, UserProperties userProperties) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
+                       WalletService walletService, SubscriptionService subscriptionService,
+                       NotificationService notificationService, UserProperties userProperties) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.walletService = walletService;
@@ -53,14 +55,14 @@ public class UserService implements UserDetailsService {
 //    public User login(LoginRequest loginRequest) {
 //        Optional<User> user = userRepository.findByUsername(loginRequest.getUsername());
 //
-//        if(user.isEmpty()) {
+//        if (user.isEmpty()) {
 //            throw new RuntimeException("Incorrect username or password.");
 //        }
 //
 //        String rawPassword = loginRequest.getPassword();
 //        String hashedPassword = user.get().getPassword();
 //
-//        if(!passwordEncoder.matches(rawPassword, hashedPassword)) {
+//        if (!passwordEncoder.matches(rawPassword, hashedPassword)) {
 //            throw new RuntimeException("Incorrect username or password.");
 //        }
 //
@@ -72,7 +74,7 @@ public class UserService implements UserDetailsService {
     public User register(RegisterRequest registerRequest) {
         Optional<User> userOpt = userRepository.findByUsername(registerRequest.getUsername());
 
-        if(userOpt.isPresent()) {
+        if (userOpt.isPresent()) {
             throw new RuntimeException("Username already exists");
         }
 
@@ -123,7 +125,7 @@ public class UserService implements UserDetailsService {
 
         User user = getById(id);
 
-        if(editProfileRequest.getEmail() != null && !editProfileRequest.getEmail().isBlank()) {
+        if (editProfileRequest.getEmail() != null && !editProfileRequest.getEmail().isBlank()) {
             notificationService.upsertPreference(user.getId(), true, editProfileRequest.getEmail());
         } else {
             notificationService.upsertPreference(user.getId(), false, null);
@@ -156,7 +158,7 @@ public class UserService implements UserDetailsService {
 
         User user = getById(userId);
 
-        if(user.getRole() == UserRole.USER) {
+        if (user.getRole() == UserRole.USER) {
             user.setRole(UserRole.ADMIN);
         } else {
             user.setRole(UserRole.USER);
@@ -172,10 +174,13 @@ public class UserService implements UserDetailsService {
     //  Goal of this method is to load the user details from the database
     //  The return type is UserDetails which is an interface that contains the user details
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException { // if it's not a username, it will be email
+    // The identifier may be an email address rather than a username.
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        return new UserData(user.getId(), username, user.getPassword(), user.getRole(), user.isActive()); // we need to add List<String> permissions
+        // TODO: pass the List<String> permissions through once they are modelled.
+        return new UserData(user.getId(), username, user.getPassword(), user.getRole(), user.isActive());
     }
 }

@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-@RequestMapping( "/transfers")
+@RequestMapping("/transfers")
 public class TransferController {
 
     private final UserService userService;
@@ -43,7 +43,8 @@ public class TransferController {
     }
 
     @PostMapping
-    public ModelAndView transfer(@Valid TransferRequest transferRequest, BindingResult bindingResult, @AuthenticationPrincipal UserData userData) {
+    public ModelAndView transfer(@Valid TransferRequest transferRequest, BindingResult bindingResult,
+                                 @AuthenticationPrincipal UserData userData) {
 
         User user = userService.getById(userData.getUserId());
 

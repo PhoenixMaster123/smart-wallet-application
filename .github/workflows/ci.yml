@@ -1,0 +1,99 @@
+name: CI
+
+# master is the long-lived branch; pull requests are checked against it so a
+# feature branch is verified before it lands rather than after.
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+# A newer push to the same branch cancels the run still in flight
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Lint, build, test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      # Matches java.version in pom.xml. Bump both together.
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: temurin
+          cache: maven
+
+      # Style runs first, as its own step, so a violation is obvious instead of
+      # buried in build output
+      - name: Lint (Checkstyle)
+        run: ./mvnw -B checkstyle:check
+
+      - name: Build and test
+        run: ./mvnw -B clean verify
+
+      # The context-load test proves the beans wire up; this proves the packaged
+      # jar actually boots. H2 stands in for the MySQL the dev profile expects.
+      - name: Smoke test - packaged application starts
+        run: |
+          java -jar target/smart-wallet-application-*.jar \
+            --spring.profiles.active=ci \
+            --spring.datasource.url='jdbc:h2:mem:ci;DB_CLOSE_DELAY=-1' \
+            --spring.datasource.driverClassName=org.h2.Driver \
+            --spring.datasource.username=sa \
+            --spring.datasource.password= \
+            --spring.jpa.hibernate.ddl-auto=create-drop \
+            --server.port=8099 > startup.log 2>&1 &
+          pid=$!
+          for _ in $(seq 1 90); do
+            if grep -q "Started Application" startup.log; then
+              echo "Application started successfully."
+              kill "$pid"
+              exit 0
+            fi
+            if ! kill -0 "$pid" 2>/dev/null; then
+              echo "::error::Application exited before it finished starting."
+              cat startup.log
+              exit 1
+            fi
+            sleep 1
+          done
+          echo "::error::Application did not start within 90 seconds."
+          cat startup.log
+          kill "$pid"
+          exit 1
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: target/surefire-reports/
+          if-no-files-found: ignore
+
+      - name: Upload Checkstyle report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: checkstyle-report
+          path: target/checkstyle-result.xml
+          if-no-files-found: ignore
+
+      - name: Upload application jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: smart-wallet-application-jar
+          path: target/smart-wallet-application-*.jar
+          if-no-files-found: error

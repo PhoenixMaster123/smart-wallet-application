@@ -41,12 +41,14 @@ public class IndexController {
 //    }
 
     @GetMapping("/login")
-    public ModelAndView getLoginPage(@RequestParam(name = "loginAttemptMessage", required = false) String message, @RequestParam(name = "error", required = false) String errorMessage) {
+    public ModelAndView getLoginPage(
+            @RequestParam(name = "loginAttemptMessage", required = false) String message,
+            @RequestParam(name = "error", required = false) String errorMessage) {
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.setViewName("login");
         modelAndView.addObject("loginRequest", new LoginRequest());
         modelAndView.addObject("loginAttemptMessage", message);
-        if(errorMessage != null) {
+        if (errorMessage != null) {
             modelAndView.addObject("errorMessage", "Invalid username or password");
         }
 
@@ -74,7 +76,8 @@ public class IndexController {
         modelAndView.setViewName("register");
 
         // We send an empty DTO object to the register page because we have there a form that the user will fill in.
-        // We needed it because when we go to the thymeleaf page, the form is empty. If we don't send it, we will get an error.
+        // We needed it because when we go to the thymeleaf page, the form is empty.
+        // If we don't send it, we will get an error.
         // In the thymeleaf page, we will use this object to bind the form fields to the DTO object.
         // We use th:object="${registerRequest}" to bind the object to the thymeleaf page.
         // We fiel the fields of the DTO object to the form fields.
@@ -92,7 +95,8 @@ public class IndexController {
     }
 
     @PostMapping("/register")
-    public ModelAndView register(@Valid RegisterRequest registerRequest, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+    public ModelAndView register(@Valid RegisterRequest registerRequest, BindingResult bindingResult,
+                                 RedirectAttributes redirectAttributes) {
 
         if (bindingResult.hasErrors()) {
             return new ModelAndView("register");

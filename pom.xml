@@ -16,6 +16,10 @@
     <properties>
         <java.version>17</java.version>
         <spring-cloud.version>2024.0.2</spring-cloud.version>
+
+        <!-- Static analysis: the analyser must stay Java 17 compatible -->
+        <maven-checkstyle-plugin>3.6.0</maven-checkstyle-plugin>
+        <checkstyle>12.3.1</checkstyle>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -117,6 +121,38 @@
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
+            </plugin>
+
+            <!-- Checkstyle: lints src/main and src/test during the validate phase -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven-checkstyle-plugin}</version>
+                <dependencies>
+                    <!-- Last Checkstyle line built for Java 17; 13.x requires Java 21 -->
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>${checkstyle}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <configLocation>config/checkstyle/checkstyle.xml</configLocation>
+                    <suppressionsLocation>config/checkstyle/suppressions.xml</suppressionsLocation>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>true</failsOnError>
+                    <violationSeverity>error</violationSeverity>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>checkstyle-validate</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>

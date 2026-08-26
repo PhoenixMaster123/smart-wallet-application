@@ -13,7 +13,8 @@ public class EmailService {
     @EventListener
     public void sendEmail(SuccessfulChargeEvent event) {
 
-        System.out.printf("Sending email for a new payment that happened for the user with email [%s]", event.getEmail());
+        System.out.printf("Sending email for a new payment that happened for the user with email [%s]",
+                event.getEmail());
     }
 
     public void sendReminderEmail(User user) {
