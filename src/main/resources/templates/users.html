@@ -151,7 +151,7 @@
             <p th:if="${user.active}" class="status active">Active</p>
             <p th:if="${!user.active}" class="status terminated">Active</p>
           </td>
-          <td th:text="${#temporals.format(user.createdOn, 'dd MMM YYYY HH:mm')}">11 Dec 2024 21:09</td>
+          <td th:text="${#temporals.format(user.createdOn, 'dd MMM yyyy HH:mm')}">11 Dec 2024 21:09</td>
           <td>
             <form th:action="@{'/users/' + ${user.id} + '/status'}" th:method="PATCH">
               <button class="profile-actions-button">
