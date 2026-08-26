@@ -25,8 +25,7 @@ public class WalletService {
 
     private static final String SMART_WALLET_IDENTIFIER = "SMART WALLET PLATFORM";
     private static final String INACTIVE_WALLET_FAILURE_REASON = "Inactive wallet";
-    private static final String INACTIVE_FUNDS_FAILURE_REASON = "Not enough funds";
-    private static final String TOP_UP_DESCRIPTION_FORMAT = "Top-up %.2f EUR";
+    private static final String INSUFFICIENT_FUNDS_FAILURE_REASON = "Not enough funds";
     private static final String TRANSFER_DESCRIPTION_FORMAT = "Transfer %s <> %s (%.2f EUR)";
     private static final String WALLET_NOT_OWNED_BY_USER_FAILURE_REASON = "Wallet not owned by user";
 
@@ -34,8 +33,6 @@ public class WalletService {
     private static final Currency DEFAULT_WALLET_CURRENCY = Currency.getInstance("EUR");
 
     private static final String FIRST_WALLET_NICKNAME = "Vault Zero";
-    private static final String SECONT_WALLET_NICKNAME = "Nova Flow";
-    private static final String THIRD_WALLET_NICKNAME = "Pulse Pay";
 
 
     private final WalletRepository walletRepository;
@@ -67,31 +64,32 @@ public class WalletService {
                 .createdOn(LocalDateTime.now())
                 .build();
 
-        if (!isActiveWallet(wallet)) {
+        // Ownership is checked first: who the wallet belongs to decides whether the
+        // caller may see anything about it at all, before its balance leaks a reason.
+        if (!isWalletOwnedByUser(user, wallet)) {
+            transaction.setFailureReason(WALLET_NOT_OWNED_BY_USER_FAILURE_REASON);
+            transaction.setStatus(TransactionStatus.FAILED);
+        } else if (!isActiveWallet(wallet)) {
             transaction.setFailureReason(INACTIVE_WALLET_FAILURE_REASON);
             transaction.setStatus(TransactionStatus.FAILED);
-
         } else if (!hasSufficientFunds(wallet, amount)) {
-            transaction.setFailureReason(INACTIVE_FUNDS_FAILURE_REASON);
-            transaction.setStatus(TransactionStatus.FAILED);
-        } else if (!isWalletOwnedByUser(user, wallet)) {
-            transaction.setFailureReason(WALLET_NOT_OWNED_BY_USER_FAILURE_REASON);
+            transaction.setFailureReason(INSUFFICIENT_FUNDS_FAILURE_REASON);
             transaction.setStatus(TransactionStatus.FAILED);
         } else {
             transaction.setStatus(TransactionStatus.SUCCEEDED);
             wallet.setBalance(wallet.getBalance().subtract(amount));
             wallet.setUpdatedOn(LocalDateTime.now());
             walletRepository.save(wallet);
-        }
 
-        SuccessfulChargeEvent event = SuccessfulChargeEvent.builder()
-                .userId(user.getId())
-                .walletId(walletId)
-                .amount(amount)
-                .email(user.getEmail())
-                .createdOn(LocalDateTime.now())
-                .build();
-        eventPublisher.publishEvent(event); // Checks all listener events and will call them
+            SuccessfulChargeEvent event = SuccessfulChargeEvent.builder()
+                    .userId(user.getId())
+                    .walletId(walletId)
+                    .amount(amount)
+                    .email(user.getEmail())
+                    .createdOn(LocalDateTime.now())
+                    .build();
+            eventPublisher.publishEvent(event); // Checks all listener events and will call them
+        }
 
         transaction.setBalanceLeft(wallet.getBalance());
 
@@ -170,13 +168,16 @@ public class WalletService {
     }
 
     @Transactional
-    public Transaction transfer(TransferRequest transferRequest) {
+    public Transaction transfer(User sender, TransferRequest transferRequest) {
 
         Wallet senderWallet = getById(transferRequest.getWalletId());
         Wallet receiverWallet = getFirstByUsername(transferRequest.getRecipientUsername());
 
         String transferDescription = TRANSFER_DESCRIPTION_FORMAT.formatted(senderWallet.getOwner().getUsername(), receiverWallet.getOwner().getUsername(), transferRequest.getAmount());
-        Transaction withdrawalTransaction = withdrawal(senderWallet.getOwner(), senderWallet.getId(), transferRequest.getAmount(), transferDescription);
+
+        // The authenticated user is passed through rather than the wallet's own
+        // owner, so withdrawal() can actually reject a wallet id that is not theirs.
+        Transaction withdrawalTransaction = withdrawal(sender, senderWallet.getId(), transferRequest.getAmount(), transferDescription);
 
         if (withdrawalTransaction.getStatus() == TransactionStatus.SUCCEEDED ) {
             deposit(receiverWallet.getId(), transferRequest.getAmount(), transferDescription);
