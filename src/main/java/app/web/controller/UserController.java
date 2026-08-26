@@ -61,6 +61,8 @@ public class UserController {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("profile-menu");
             modelAndView.addObject("user", user);
+
+            return modelAndView;
         }
 
         userService.updateProfile(editProfileRequest, id);
@@ -69,16 +71,15 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}/status")
-    public String switchUserRole(@PathVariable UUID userId) {
+    public String switchUserStatus(@PathVariable UUID userId) {
 
         userService.switchStatus(userId);
 
         return "redirect:/users";
     }
 
-
     @PatchMapping("/{userId}/role")
-    public String switchUserStatus(@PathVariable UUID userId) {
+    public String switchUserRole(@PathVariable UUID userId) {
 
         userService.switchRole(userId);
 
