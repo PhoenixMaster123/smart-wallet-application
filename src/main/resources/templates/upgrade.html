@@ -157,7 +157,7 @@
         <p>0.00</p>
         <p>yearly price</p>
       </div>
-      <form class="form" action="/subscriptions?subscriptionType=DEFAULT" method="post" th:object="${upgradeRequest}">
+      <form class="form" th:action="@{/subscriptions(subscriptionType='DEFAULT')}" method="post" th:object="${upgradeRequest}">
         <label>Choose period</label>
         <select name="subscriptionPeriod" th:field="*{period}">
           <option th:each="period : ${T(app.subscription.model.SubscriptionPeriod).values()}" th:value="${period}" th:text="${period.getDisplayName()}">Monthly</option>
@@ -213,7 +213,7 @@
         <p>199.99</p>
         <p>yearly price</p>
       </div>
-      <form class="form" action="/subscriptions?subscriptionType=PREMIUM" method="post" th:object="${upgradeRequest}">
+      <form class="form" th:action="@{/subscriptions(subscriptionType='PREMIUM')}" method="post" th:object="${upgradeRequest}">
         <label>Choose period</label>
           <select name="subscriptionPeriod" th:field="*{period}">
               <option th:each="period : ${T(app.subscription.model.SubscriptionPeriod).values()}" th:value="${period}" th:text="${period.getDisplayName()}">Monthly</option>
@@ -268,7 +268,7 @@
         <p>499.99</p>
         <p>yearly price</p>
       </div>
-      <form class="form" action="/subscriptions?subscriptionType=ULTIMATE" method="post" th:object="${upgradeRequest}">
+      <form class="form" th:action="@{/subscriptions(subscriptionType='ULTIMATE')}" method="post" th:object="${upgradeRequest}">
         <label>Choose period</label>
           <select name="subscriptionPeriod" th:field="*{period}">
               <option th:each="period : ${T(app.subscription.model.SubscriptionPeriod).values()}" th:value="${period}" th:text="${period.getDisplayName()}">Monthly</option>
