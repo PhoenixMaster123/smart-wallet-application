@@ -10,7 +10,6 @@ import app.transaction.model.TransactionStatus;
 import app.user.model.User;
 import app.wallet.service.WalletService;
 import app.web.dto.UpgradeRequest;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,7 +46,7 @@ public class SubscriptionService {
         return subscriptionRepository.save(subscription);
     }
 
-    public Transaction upgrade(User user, @Valid UpgradeRequest upgradeRequest, SubscriptionType subscriptionType) {
+    public Transaction upgrade(User user, UpgradeRequest upgradeRequest, SubscriptionType subscriptionType) {
 
         Optional<Subscription> currentActiveSubscriptionOpt = subscriptionRepository.findByStatusAndOwnerId(SubscriptionStatus.ACTIVE, user.getId());
 

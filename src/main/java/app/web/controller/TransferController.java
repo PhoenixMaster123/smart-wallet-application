@@ -45,9 +45,9 @@ public class TransferController {
     @PostMapping
     public ModelAndView transfer(@Valid TransferRequest transferRequest, BindingResult bindingResult, @AuthenticationPrincipal UserData userData) {
 
-        if (bindingResult.hasErrors()) {
-            User user = userService.getById(userData.getUserId());
+        User user = userService.getById(userData.getUserId());
 
+        if (bindingResult.hasErrors()) {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("transfer");
             modelAndView.addObject("user", user);
@@ -55,7 +55,7 @@ public class TransferController {
             return modelAndView;
         }
 
-        Transaction transaction = walletService.transfer(transferRequest);
+        Transaction transaction = walletService.transfer(user, transferRequest);
 
         return new ModelAndView("redirect:/transactions/" + transaction.getId());
     }

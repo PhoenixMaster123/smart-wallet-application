@@ -27,6 +27,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}/profile")
+    @PreAuthorize("#id == principal.userId or hasRole('ADMIN')")
     public ModelAndView getProfilePage(@PathVariable UUID id) {
 
         User user = userService.getById(id);
@@ -54,6 +55,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}/profile")
+    @PreAuthorize("#id == principal.userId or hasRole('ADMIN')")
     public ModelAndView updateProfile(@Valid EditProfileRequest editProfileRequest, @PathVariable UUID id, BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
@@ -61,6 +63,8 @@ public class UserController {
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.setViewName("profile-menu");
             modelAndView.addObject("user", user);
+
+            return modelAndView;
         }
 
         userService.updateProfile(editProfileRequest, id);
@@ -69,16 +73,17 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}/status")
-    public String switchUserRole(@PathVariable UUID userId) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public String switchUserStatus(@PathVariable UUID userId) {
 
         userService.switchStatus(userId);
 
         return "redirect:/users";
     }
 
-
     @PatchMapping("/{userId}/role")
-    public String switchUserStatus(@PathVariable UUID userId) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public String switchUserRole(@PathVariable UUID userId) {
 
         userService.switchRole(userId);
 
