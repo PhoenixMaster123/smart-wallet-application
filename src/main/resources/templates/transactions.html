@@ -119,12 +119,12 @@
         <tr th:each="transaction : ${transactions}">
           <td><a th:href="@{'/transactions/' + ${transaction.id}}" th:text="${transaction.id}"></a></td>
           <td>
-            <p th:if="${transaction.status.name() == 'SUCCEDED'}" class="status active">SUCCEEDED</p>
+            <p th:if="${transaction.status.name() == 'SUCCEEDED'}" class="status active">SUCCEEDED</p>
               <p th:if="${transaction.status.name() == 'FAILED'}" class="status active">FAILED</p>
           </td>
           <td th:text="${transaction.type.name() == 'DEPOSIT' ? ('+' + transaction.amount + ' ' + transaction.currency) : ('-' + transaction.amount + ' ' + transaction.currency)}" th:classappend="${transaction.status.name() == 'FAILED' ? 'crosslined' : ''}">-2.04 EUR</td>
           <td th:text="${transaction.balanceLeft + ' ' + transaction.currency}">16.03 EUR</td>
-          <td style="text-align: left" th:text="${transaction.status.name() == 'SUCCEDED' ? transaction.description : transaction.failureReason}">2.00 EUR from ivan123</td>
+          <td style="text-align: left" th:text="${transaction.status.name() == 'SUCCEEDED' ? transaction.description : transaction.failureReason}">2.00 EUR from ivan123</td>
           <td th:text="${#temporals.format(transaction.createdOn, 'dd MMM yyyy HH:mm')}">30 Dec 2024 17:03</td>
         </tr>
         </tbody>
