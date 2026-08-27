@@ -4,7 +4,13 @@ A server-rendered wallet service built with Spring Boot. Users hold multiple
 currency wallets, transfer funds to each other, and move between subscription
 tiers that are charged against a wallet balance.
 
-Full documentation: **https://phoenixmaster123.github.io/smart-wallet-application/**
+**[Try the demo](https://phoenixmaster123.github.io/smart-wallet-application/app/)**
+&middot;
+[Documentation](https://phoenixmaster123.github.io/smart-wallet-application/)
+
+The demo is the application's own templates and stylesheets running against a
+seeded registry in the browser, so transfers, top-ups and subscription upgrades
+all work with no backend behind them. State lives in `sessionStorage`.
 
 ## Requirements
 
