@@ -171,6 +171,24 @@
     font-size: 14px;
   }
 
+  .cta-row { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin: 26px 0 0; }
+
+  .cta {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 11px 20px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+  }
+
+  .cta:hover { filter: brightness(1.08); }
+
+  .cta-note { color: var(--ink-soft); font-size: 14px; }
+
   .diagram { width: 100%; height: auto; display: block; margin: 8px 0 20px; }
   .diagram text { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11px; }
 </style>
@@ -186,7 +204,40 @@
     funds to each other, and move between subscription tiers that are charged
     against a wallet balance.
   </p>
+  <p class="cta-row">
+    <a class="cta" href="app/index.html">Open the demo &rarr;</a>
+    <span class="cta-note">Signed in for you. No install, no database.</span>
+  </p>
 </header>
+
+<h2>The demo</h2>
+
+<p>
+  <a href="app/index.html">The console</a> published alongside these docs is the
+  application's own Thymeleaf markup and stylesheets, running against a seeded
+  registry in your browser. There is no backend behind a static host, so the
+  services in <code>src/main/java/app</code> are reproduced in JavaScript: the same
+  arithmetic, the same failure reasons, the same order of checks.
+</p>
+
+<div class="grid">
+  <div class="card">
+    <h3>What works</h3>
+    <p>Sign in, transfer funds, top up a wallet, switch a wallet off, upgrade or downgrade a tier, edit your profile, and read the transaction and subscription history.</p>
+  </div>
+  <div class="card">
+    <h3>Seeded state</h3>
+    <p><code>Vik1234</code> with a 20.00 EUR main wallet on the DEFAULT tier, mirroring what a first start creates. A second account, <code>ivan123</code>, exists to receive transfers.</p>
+  </div>
+  <div class="card">
+    <h3>Where state lives</h3>
+    <p>In <code>sessionStorage</code>, so a reload keeps your balance and a new tab starts clean. Nothing is sent anywhere, and Reset data restores the seed.</p>
+  </div>
+  <div class="card">
+    <h3>What is missing</h3>
+    <p>The admin pages: the one account you can sign in as holds USER, so the sidebar's admin block never renders &mdash; exactly as <code>sec:authorize</code> decides it in the real templates.</p>
+  </div>
+</div>
 
 <h2>What it does</h2>
 

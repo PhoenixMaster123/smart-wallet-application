@@ -1,0 +1,59 @@
+/* Chrome that belongs to the demo rather than to the application. */
+
+.demo-banner {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    background: #1f2933;
+    color: #e4e7eb;
+    font-family: "Roboto", sans-serif;
+    font-size: 13px;
+    letter-spacing: .01em;
+    border-bottom: 1px solid #323f4b;
+}
+
+.demo-banner strong {
+    color: #ffd166;
+    font-weight: 700;
+}
+
+.demo-banner button {
+    padding: 3px 10px;
+    border: 1px solid #52606d;
+    border-radius: 4px;
+    background: transparent;
+    color: #e4e7eb;
+    font: inherit;
+    cursor: pointer;
+}
+
+.demo-banner button:hover {
+    background: #323f4b;
+}
+
+/* Shown when a form is rejected, matching the alert-warning the templates use. */
+.demo-error {
+    color: #d64545;
+    font-size: 14px;
+    margin: 8px 0 0;
+}
+
+.demo-empty {
+    padding: 24px;
+    text-align: center;
+    color: #7b8794;
+    font-family: "Roboto", sans-serif;
+}
+
+/* Several of the app's status rules set `display`, which beats the browser's
+   default `[hidden] { display: none }`. The demo toggles those elements with
+   the hidden attribute, so it has to win. */
+[hidden] {
+    display: none !important;
+}

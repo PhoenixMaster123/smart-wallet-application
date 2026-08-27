@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&amp;display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="css/common.css">
+  <link rel="stylesheet" type="text/css" href="css/nav-side-bar.css">
+  <link rel="stylesheet" type="text/css" href="css/home-common.css">
+  <link rel="stylesheet" type="text/css" href="css/home.css">
+  <link rel="stylesheet" type="text/css" href="css/upgrade-result-menu.css">
+  <link rel="stylesheet" type="text/css" href="css/notifications.css">
+  <link rel="stylesheet" type="text/css" href="css/demo.css">
+  <title>Notifications &middot; Smart Wallet</title>
+</head>
+<body>
+<main>
+  <div class="nav-bar"></div>
+  <div class="home-section">
+    <div class="notification-preferences-box">
+      <div class="box-resizer">
+        <h2>Notification Dashboard</h2>
+        <p>Current preferences:</p>
+
+        <div class="details-section">
+          <div class="details-section-container">
+            <strong>Notification type: </strong>
+            <p>Email</p>
+          </div>
+        </div>
+
+        <div class="details-section">
+          <div class="details-section-container">
+            <strong>Source: </strong>
+            <p id="source"></p>
+          </div>
+        </div>
+
+        <div class="details-section">
+          <div class="details-section-container">
+            <strong>Notification state: </strong>
+            <p class="enabled-notification-status" id="state-enabled" hidden>ENABLED</p>
+            <p class="disabled-notification-status" id="state-disabled" hidden>DISABLED</p>
+          </div>
+        </div>
+
+        <p class="demo-empty" style="text-align:left; padding:16px 0 0">
+          Preferences are owned by a separate notification service that the
+          application reaches over an OpenFeign client. There is no such service
+          behind a static host, so this page reads the state the way
+          <code>UserService.updateProfile</code> would set it: adding an email
+          address on your profile enables notifications, clearing it disables them.
+        </p>
+
+        <a href="profile.html" class="profile-actions-button">
+          <p>Edit profile</p>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 4h4m0 0v4m0-4-5 5M8 20H4m0 0v-4m0 4 5-5"></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</main>
+<div class="footer"></div>
+
+<script type="module">
+  import { requireUser } from './js/store.js';
+  import { initPage } from './js/ui.js';
+
+  initPage('notifications');
+  const user = requireUser();
+  if (user) {
+    const enabled = Boolean(user.email);
+    document.getElementById('source').textContent = user.email || 'No email address on the profile';
+    document.getElementById(enabled ? 'state-enabled' : 'state-disabled').hidden = false;
+  }
+</script>
+</body>
+</html>

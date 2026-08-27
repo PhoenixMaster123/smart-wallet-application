@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&amp;display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="css/common.css">
+  <link rel="stylesheet" type="text/css" href="css/nav-side-bar.css">
+  <link rel="stylesheet" type="text/css" href="css/home-common.css">
+  <link rel="stylesheet" type="text/css" href="css/home.css">
+  <link rel="stylesheet" type="text/css" href="css/transactions.css">
+  <link rel="stylesheet" type="text/css" href="css/demo.css">
+  <title>Transactions &middot; Smart Wallet</title>
+</head>
+<body>
+<main>
+  <div class="nav-bar"></div>
+  <div class="home-section">
+    <div class="single-section-box transactions-container">
+      <table class="styled-table">
+        <thead>
+        <tr>
+          <th>Id</th>
+          <th>Status</th>
+          <th>Amount</th>
+          <th>Balance</th>
+          <th>Note</th>
+          <th>Date</th>
+        </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <p class="demo-empty" id="empty" hidden>
+        No transactions yet. Send a transfer or upgrade a subscription.
+      </p>
+    </div>
+  </div>
+</main>
+<div class="footer"></div>
+
+<script type="module">
+  import { requireUser, transactionsOf } from './js/store.js';
+  import { initPage, formatDateTime, money } from './js/ui.js';
+
+  initPage('transactions');
+  const user = requireUser();
+  if (user) {
+    const rows = document.getElementById('rows');
+    const transactions = transactionsOf(user.id);
+
+    if (transactions.length === 0) {
+      document.getElementById('empty').hidden = false;
+    }
+
+    for (const tx of transactions) {
+      const tr = document.createElement('tr');
+
+      const idCell = document.createElement('td');
+      const link = document.createElement('a');
+      link.href = `transaction.html?id=${encodeURIComponent(tx.id)}`;
+      link.textContent = tx.id;
+      idCell.append(link);
+
+      const statusCell = document.createElement('td');
+      const status = document.createElement('p');
+      status.className = 'status active';
+      status.textContent = tx.status;
+      statusCell.append(status);
+
+      const amountCell = document.createElement('td');
+      const sign = tx.type === 'DEPOSIT' ? '+' : '-';
+      amountCell.textContent = `${sign}${money(tx.amount)} ${tx.currency}`;
+      if (tx.status === 'FAILED') {
+        amountCell.classList.add('crosslined');
+      }
+
+      const balanceCell = document.createElement('td');
+      balanceCell.textContent = `${money(tx.balanceLeft)} ${tx.currency}`;
+
+      // Description carries a username the user typed, so it is set as text.
+      const noteCell = document.createElement('td');
+      noteCell.style.textAlign = 'left';
+      noteCell.textContent = tx.status === 'SUCCEEDED' ? tx.description : tx.failureReason;
+
+      const dateCell = document.createElement('td');
+      dateCell.textContent = formatDateTime(tx.createdOn);
+
+      tr.append(idCell, statusCell, amountCell, balanceCell, noteCell, dateCell);
+      rows.append(tr);
+    }
+  }
+</script>
+</body>
+</html>

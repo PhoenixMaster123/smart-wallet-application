@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&amp;display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="css/common.css">
+  <link rel="stylesheet" type="text/css" href="css/nav-side-bar.css">
+  <link rel="stylesheet" type="text/css" href="css/home-common.css">
+  <link rel="stylesheet" type="text/css" href="css/home.css">
+  <link rel="stylesheet" type="text/css" href="css/wallets.css">
+  <link rel="stylesheet" type="text/css" href="css/demo.css">
+  <title>Wallets &middot; Smart Wallet</title>
+</head>
+<body>
+<main>
+  <div class="nav-bar"></div>
+  <div class="home-section" id="wallets"></div>
+</main>
+<div class="footer"></div>
+
+<template id="wallet-template">
+  <div class="wallet-block">
+    <div class="default-label-box">
+      <p class="nickname"></p>
+      <p class="active-wallet-status" hidden>ACTIVE</p>
+      <p class="inactive-wallet-status" hidden>INACTIVE</p>
+    </div>
+
+    <div class="wallet-balance">
+      <p class="balance"></p>
+      <p class="available-balance-text">Available Balance</p>
+    </div>
+
+    <div class="wallet-actions">
+      <button type="button" class="profile-actions-button top-up">
+        <p>20.00</p>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-arrow-up" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5"></path>
+        </svg>
+      </button>
+      <button type="button" class="profile-actions-button switch-status">
+        <p>Switch</p>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-toggle-on" viewBox="0 0 16 16">
+          <path d="M5 3a5 5 0 0 0 0 10h6a5 5 0 0 0 0-10zm6 9a4 4 0 1 1 0-8 4 4 0 0 1 0 8"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="details-section">
+      <div class="details-section-container">
+        <strong>Id: </strong>
+        <p class="wallet-id"></p>
+      </div>
+      <div class="details-section-container">
+        <strong>Created on: </strong>
+        <p class="created-on"></p>
+      </div>
+    </div>
+
+    <div class="wallet-activity"></div>
+  </div>
+</template>
+
+<script type="module">
+  import { requireUser, walletsOf, transactionsOf, topUp, switchWalletStatus } from './js/store.js';
+  import { initPage, formatDateTime, money } from './js/ui.js';
+
+  const ARROW_UP = 'M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5';
+  const ARROW_DOWN = 'M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1';
+
+  initPage('wallets');
+  const user = requireUser();
+  if (user) {
+    const host = document.getElementById('wallets');
+    const template = document.getElementById('wallet-template');
+    const transactions = transactionsOf(user.id);
+
+    for (const wallet of walletsOf(user.id)) {
+      const node = template.content.cloneNode(true);
+
+      node.querySelector('.nickname').textContent = wallet.nickname;
+      node.querySelector('.balance').textContent = `${money(wallet.balance)} ${wallet.currency}`;
+      node.querySelector('.wallet-id').textContent = wallet.id;
+      node.querySelector('.created-on').textContent = formatDateTime(wallet.createdOn);
+      node.querySelector(wallet.status === 'ACTIVE' ? '.active-wallet-status' : '.inactive-wallet-status').hidden = false;
+
+      // Only this wallet's own successful movements, newest first.
+      const activity = node.querySelector('.wallet-activity');
+      const entries = transactions
+        .filter((t) => t.status === 'SUCCEEDED' && (t.sender === wallet.id || t.receiver === wallet.id))
+        .slice(0, 5);
+
+      for (const tx of entries) {
+        const incoming = tx.receiver === wallet.id;
+        const entry = document.createElement('div');
+        entry.className = 'activity-entry';
+
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('width', '18');
+        svg.setAttribute('height', '18');
+        svg.setAttribute('fill', 'currentColor');
+        svg.setAttribute('viewBox', '0 0 16 16');
+        svg.setAttribute('class', `bi ${incoming ? 'bi-arrow-up amount-in' : 'bi-arrow-down amount-out'}`);
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('fill-rule', 'evenodd');
+        path.setAttribute('d', incoming ? ARROW_UP : ARROW_DOWN);
+        svg.append(path);
+
+        const text = document.createElement('div');
+        text.className = 'activity-entry-description-and-date';
+        const description = document.createElement('p');
+        description.className = 'activity-entry-description';
+        description.textContent = tx.description;
+        const date = document.createElement('p');
+        date.className = 'activity-entry-date';
+        date.textContent = formatDateTime(tx.createdOn);
+        text.append(description, date);
+
+        const amount = document.createElement('p');
+        amount.className = `activity-entry-amount ${incoming ? 'amount-in' : 'amount-out'}`;
+        amount.textContent = `${incoming ? '+' : '-'}${money(tx.amount)}`;
+
+        entry.append(svg, text, amount);
+        activity.append(entry);
+      }
+
+      if (entries.length === 0) {
+        const empty = document.createElement('p');
+        empty.className = 'demo-empty';
+        empty.textContent = 'No activity yet.';
+        activity.append(empty);
+      }
+
+      node.querySelector('.top-up').addEventListener('click', () => {
+        topUp(user, wallet.id, 20.00);
+        window.location.reload();
+      });
+
+      node.querySelector('.switch-status').addEventListener('click', () => {
+        switchWalletStatus(user, wallet.id);
+        window.location.reload();
+      });
+
+      host.append(node);
+    }
+  }
+</script>
+</body>
+</html>
