@@ -452,6 +452,39 @@ export function switchWalletStatus(user, walletId) {
   persist();
 }
 
+/** WalletUtils.isEligibleToUnlockNewWallet */
+export function isEligibleToUnlockNewWallet(userId) {
+  const sub = activeSubscriptionOf(userId);
+  if (!sub) {
+    return false;
+  }
+  const count = walletsOf(userId).length;
+  return (sub.type === 'PREMIUM' && count < 2) || (sub.type === 'ULTIMATE' && count < 5);
+}
+
+/** Unlocks and creates a new wallet for eligible tiers. */
+export function unlockNewWallet(user) {
+  if (!isEligibleToUnlockNewWallet(user.id)) {
+    return null;
+  }
+  const count = walletsOf(user.id).length;
+  const now = nowIso();
+  const newWallet = {
+    id: uuid(),
+    ownerId: user.id,
+    nickname: `Vault ${count}`,
+    status: 'ACTIVE',
+    balance: 20.00,
+    currency: 'EUR',
+    main: false,
+    createdOn: now,
+    updatedOn: now,
+  };
+  state.wallets.push(newWallet);
+  persist();
+  return newWallet;
+}
+
 /** UserService.updateProfile. */
 export function updateProfile(userId, fields) {
   const user = state.users.find((u) => u.id === userId);
