@@ -7,9 +7,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&amp;display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&amp;display=swap" rel="stylesheet">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" type="text/css" href="css/common.css">
-  <link rel="stylesheet" type="text/css" href="css/form.css">
-  <link rel="stylesheet" type="text/css" href="css/demo.css">
+  <link rel="stylesheet" type="text/css" href="css/common.css?v=1.0.4">
+  <link rel="stylesheet" type="text/css" href="css/form.css?v=1.0.4">
+  <link rel="stylesheet" type="text/css" href="css/demo.css?v=1.0.4">
   <title>Login &middot; Smart Wallet</title>
 </head>
 <body>
@@ -58,7 +58,7 @@
 <div class="footer"><p>&copy; 2025 Smart Wallet. All rights reserved.</p></div>
 
 <script type="module">
-  import { signIn, signOut, currentUser } from './js/store.js?v=1.0.3';
+  import { signIn, signOut, currentUser } from './js/store.js?v=1.0.4';
 
   const isLogout = new URLSearchParams(window.location.search).has('logout');
   if (isLogout) {
