@@ -2,7 +2,7 @@
 // templates, so it is rendered from one place here rather than pasted seven
 // times, and the icons are the same paths the Thymeleaf pages use.
 
-import { currentUser, signOut } from './store.js?v=1.0.1';
+import { currentUser, signOut, refresh } from './store.js?v=1.0.2';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -108,4 +108,13 @@ export function renderFooter() {
 export function initPage(active) {
   renderSidebar(active);
   renderFooter();
+
+  // A page restored from the back/forward cache keeps the state it was frozen
+  // with, so an admin who has just changed a role would come back to a sidebar
+  // and a table drawn from the old registry. Redraw from what is stored now.
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) {
+      refresh();
+    }
+  });
 }

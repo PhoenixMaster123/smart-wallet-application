@@ -67,9 +67,9 @@
 <script type="module">
   import {
     requireUser, walletsOf, transactionsOf, topUp, switchWalletStatus,
-    isEligibleToUnlockNewWallet, unlockNewWallet
-  } from './js/store.js?v=1.0.1';
-  import { initPage, formatDateTime, money } from './js/ui.js?v=1.0.1';
+    isEligibleToUnlockNewWallet, unlockNewWallet, refresh
+  } from './js/store.js?v=1.0.2';
+  import { initPage, formatDateTime, money } from './js/ui.js?v=1.0.2';
 
   const ARROW_UP = 'M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5';
   const ARROW_DOWN = 'M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1';
@@ -139,12 +139,12 @@
 
       node.querySelector('.top-up').addEventListener('click', () => {
         topUp(user, wallet.id, 20.00);
-        window.location.reload();
+        refresh();
       });
 
       node.querySelector('.switch-status').addEventListener('click', () => {
         switchWalletStatus(user, wallet.id);
-        window.location.reload();
+        refresh();
       });
 
       host.append(node);
@@ -161,7 +161,7 @@
 
       newWalletBlock.addEventListener('click', () => {
         unlockNewWallet(user);
-        window.location.reload();
+        refresh();
       });
 
       host.append(newWalletBlock);

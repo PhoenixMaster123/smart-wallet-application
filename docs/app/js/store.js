@@ -1,16 +1,22 @@
 // The demo's stand-in for the database and the HTTP session.
 //
-// State lives in sessionStorage, so a reload keeps your balance but a new tab
-// starts clean. Every write mirrors what the corresponding service does in
-// src/main/java/app - the arithmetic and the failure reasons are the same, so
-// the demo tells the same story the real application would.
+// State lives in sessionStorage so it survives a link click, but nothing is
+// meant to outlive a visit: reloading the page throws the registry away and
+// drops you back on the login screen. Every write mirrors what the
+// corresponding service does in src/main/java/app - the arithmetic and the
+// failure reasons are the same, so the demo tells the same story the real
+// application would.
 
 import {
   SEED_LOGIN, SEED_USERS, SEED_WALLETS, SEED_SUBSCRIPTIONS, SEED_TRANSACTIONS,
   SUBSCRIPTION_PRICES, SMART_WALLET_IDENTIFIER,
-} from './seed.js?v=1.0.1';
+} from './seed.js?v=1.0.2';
 
 const KEY = 'smart-wallet-demo-v3';
+
+// Set just before a reload the demo asks for itself, so that reload is not
+// mistaken for the visitor pressing F5.
+const SELF_RELOAD_KEY = 'smart-wallet-demo-self-reload';
 
 // WalletService failure reasons, verbatim.
 const INACTIVE_WALLET_FAILURE_REASON = 'Inactive wallet';
@@ -70,6 +76,57 @@ function persist() {
     sessionStorage.setItem(KEY, JSON.stringify(state));
   } catch {
     // Nothing to do - the demo still works, it just will not survive a reload.
+  }
+}
+
+/**
+ * Reloads the current page without losing the demo's state.
+ *
+ * The pages redraw themselves by reloading after a write - a top-up, a wallet
+ * switch - and those reloads have to survive the guard below, so they leave a
+ * marker behind on the way out.
+ */
+export function refresh() {
+  try {
+    sessionStorage.setItem(SELF_RELOAD_KEY, '1');
+  } catch {
+    // Without the marker the reload starts over, which is no worse than the
+    // storage being unavailable in the first place.
+  }
+  window.location.reload();
+}
+
+function wasSelfReload() {
+  try {
+    const marked = sessionStorage.getItem(SELF_RELOAD_KEY) === '1';
+    sessionStorage.removeItem(SELF_RELOAD_KEY);
+    return marked;
+  } catch {
+    return false;
+  }
+}
+
+function isBrowserReload() {
+  const [navigation] = performance.getEntriesByType('navigation');
+  if (navigation) {
+    return navigation.type === 'reload';
+  }
+  // Safari below 15 has no navigation timing entry, only the legacy counter.
+  return Boolean(performance.navigation) && performance.navigation.type === 1;
+}
+
+function isLoginPage() {
+  const path = window.location.pathname;
+  return path.endsWith('/') || path.endsWith('/index.html');
+}
+
+// Pressing F5 starts the demo over: the seeded registry comes back and the
+// visitor lands on the login page, rather than carrying half-finished state
+// into a session the browser no longer has a page for.
+if (isBrowserReload() && !wasSelfReload()) {
+  reset();
+  if (!isLoginPage()) {
+    window.location.replace('index.html');
   }
 }
 
@@ -223,6 +280,21 @@ export function reset() {
 
 /* ------------------------------------------------------------------- reads */
 
+/**
+ * Newest first, the way the repositories order their findAllBy... queries.
+ *
+ * Timestamps have no sub-second part, so several rows written in the same
+ * second compare equal; the position in the list breaks the tie and keeps the
+ * one written last at the top.
+ */
+function newestFirst(rows, userId) {
+  return rows
+    .map((row, index) => ({ row, index }))
+    .filter(({ row }) => row.ownerId === userId)
+    .sort((a, b) => b.row.createdOn.localeCompare(a.row.createdOn) || b.index - a.index)
+    .map(({ row }) => row);
+}
+
 export function walletsOf(userId) {
   return state.wallets.filter((w) => w.ownerId === userId);
 }
@@ -232,9 +304,7 @@ export function mainWalletOf(userId) {
 }
 
 export function subscriptionsOf(userId) {
-  return state.subscriptions
-    .filter((s) => s.ownerId === userId)
-    .sort((a, b) => b.createdOn.localeCompare(a.createdOn));
+  return newestFirst(state.subscriptions, userId);
 }
 
 export function activeSubscriptionOf(userId) {
@@ -242,9 +312,7 @@ export function activeSubscriptionOf(userId) {
 }
 
 export function transactionsOf(userId) {
-  return state.transactions
-    .filter((t) => t.ownerId === userId)
-    .sort((a, b) => b.createdOn.localeCompare(a.createdOn));
+  return newestFirst(state.transactions, userId);
 }
 
 export function transactionById(id) {
@@ -499,6 +567,11 @@ export function updateProfile(userId, fields) {
 /** Admin: UserService.getAll */
 export function allUsers() {
   return state.users;
+}
+
+/** Everyone you could send money to - the demo has no user search. */
+export function otherUsers(userId) {
+  return state.users.filter((u) => u.id !== userId && u.active);
 }
 
 /** Admin: UserService.switchStatus */
