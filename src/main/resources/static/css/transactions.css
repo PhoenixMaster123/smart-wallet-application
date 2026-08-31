@@ -1,11 +1,16 @@
+/* A wide table must not push the page sideways: the section scrolls instead. */
 .home-section {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
+    min-width: 0;
+    height: auto;
+    overflow-x: auto;
 }
 
 .single-section-box.transactions-container {
     position: relative;
     display: flex;
+    align-items: flex-start;
     justify-content: center;
     width: 100%;
     overflow: hidden;

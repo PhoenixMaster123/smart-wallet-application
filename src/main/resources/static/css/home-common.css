@@ -29,13 +29,17 @@ body main {
   clear: both;
 }
 
+/* Two 50% columns plus the gap add up to more than the row holds, which pushed
+   the dashboard past the right edge; equal free-space columns leave room for
+   it. minmax(0, ...) lets a column shrink below the width of its content. */
 .home-section {
   height: 100%;
   width: 100%;
+  min-width: 0;
   display: grid;
   grid-column-gap: 26px;
   grid-row-gap: 26px;
-  grid-template-columns: repeat(2, 50%);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   color: #333333;
   margin-right: 2%;
 }

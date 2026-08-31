@@ -2,23 +2,51 @@
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
+  align-content: flex-start;
   justify-content: center;
   gap: 24px;
   padding: 0 0 40px;
   width: 100%;
+  min-width: 0;
+  height: auto;
+  margin-right: 0;
 }
 
+/* One card size, whatever the wallet holds: the activity list below scrolls
+   instead of stretching the card, so a wallet with five movements lines up
+   with an empty one. The height leaves room for three entries, and the basis
+   is small enough that three cards still sit on one row at 1280px, which is
+   where the sidebar leaves ~900px. */
 .wallet-block {
   padding: 16px 20px;
-  width: 310px;
-  min-width: 280px;
-  max-width: 340px;
+  flex: 1 1 260px;
+  min-width: 260px;
+  max-width: 320px;
+  height: 490px;
   background: #ffffff;
   border-radius: 12px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* A wallet id is 36 characters, which is most of the width of a card. It fits
+   on one line at this size; on a card narrower still the row wraps rather than
+   pushing out of the card. */
+.wallet-block .details-section {
+  font-size: 11px;
+}
+
+.wallet-block .details-section-container {
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+
+.wallet-block .details-section-container p {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .wallet-actions {
@@ -35,7 +63,8 @@
   flex-direction: column;
   padding: 0;
   background: transparent;
-  max-height: 160px;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: thin;
@@ -113,9 +142,10 @@
   cursor: pointer;
   transition: background-color 0.4s, transform 0.4s;
   padding: 0;
-  min-height: 440px;
-  width: 310px;
-  min-width: 280px;
+  flex: 1 1 260px;
+  min-width: 260px;
+  max-width: 320px;
+  height: 490px;
   box-sizing: border-box;
 }
 

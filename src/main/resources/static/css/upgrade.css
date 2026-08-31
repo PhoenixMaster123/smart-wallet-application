@@ -2,12 +2,19 @@
     display: flex;
     justify-content: center;
     align-items: stretch;
+    align-content: flex-start;
     gap: 24px;
     flex-wrap: wrap;
     width: 100%;
+    min-width: 0;
+    height: auto;
+    margin-right: 0;
     padding-bottom: 30px;
 }
 
+/* The three tiers belong on one row. A fixed 310px each needs 978px, which is
+   more than the sidebar leaves at 1280px, so they share the row instead and
+   only wrap once the row can no longer hold three. */
 .single-upgrade-box {
     display: flex;
     flex-direction: column;
@@ -17,12 +24,17 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     color: #333333;
     text-align: center;
-    width: 310px;
+    flex: 1 1 260px;
+    min-width: 260px;
+    max-width: 320px;
     box-sizing: border-box;
 }
 
+/* A percentage here is measured against the height the card was stretched to,
+   which then grows the header and pushes the buy button back out of the card.
+   The pixel value is what the 15% resolved to on a full-height card. */
 .upgrade-option-header-box {
-    min-height: 15%;
+    min-height: 96px;
     display: flex;
     flex-direction: column;
 }
@@ -72,7 +84,9 @@
     height: 740px;
     background: radial-gradient(circle, rgb(135, 102, 255), #ff6767);
     bottom: -30px;
-    right: -30px;
+    /* Held inside the card: the tier sits against the right edge of the page
+       now that all three share a row, and a glow hanging off it scrolls. */
+    right: 0;
 }
 
 .default-label-box {
