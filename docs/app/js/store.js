@@ -8,7 +8,7 @@
 import {
   SEED_LOGIN, SEED_USERS, SEED_WALLETS, SEED_SUBSCRIPTIONS, SEED_TRANSACTIONS,
   SUBSCRIPTION_PRICES, SMART_WALLET_IDENTIFIER,
-} from './seed.js';
+} from './seed.js?v=1.0.1';
 
 const KEY = 'smart-wallet-demo-v3';
 
