@@ -73,12 +73,11 @@ export function renderSidebar(active) {
             ${link('subscription-history.html', 'Subscription History', 'dots', active === 'history')}
             ${link('notifications.html', 'Notifications', 'dots', active === 'notifications')}
           </div>
-          <!--
-            The templates carry an admin block behind sec:authorize="hasRole('ADMIN')".
-            The demo seeds exactly one account you can sign in as and it holds
-            USER, matching application.properties, so that block would never
-            render - it is left out rather than linking to pages nobody reaches.
-          -->
+          ${user && user.role === 'ADMIN' ? `
+          <div class="func-block admin-func-block">
+            <span>Admin</span>
+            ${link('users.html', 'Users', 'dots', active === 'users')}
+          </div>` : ''}
           <div class="func-block">
             <a class="logout" href="#" data-logout><p>Logout</p>${icon('logout')}</a>
           </div>

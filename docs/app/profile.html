@@ -77,7 +77,8 @@
     const isHttpUrl = (value) => /^https?:\/\/\S+$/i.test(value);
 
     document.getElementById('avatar').src = isHttpUrl(user.profilePicture || '') ? user.profilePicture : DEFAULT_AVATAR;
-    document.getElementById('profile-name').textContent = user.username;
+    const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ');
+    document.getElementById('profile-name').textContent = fullName || user.username;
     document.getElementById('profile-id').textContent = user.id;
     document.getElementById('profile-updated').textContent = formatDateTime(user.updatedOn);
 

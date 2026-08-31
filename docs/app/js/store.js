@@ -423,3 +423,30 @@ export function updateProfile(userId, fields) {
   user.updatedOn = nowIso();
   persist();
 }
+
+/** Admin: UserService.getAll */
+export function allUsers() {
+  return state.users;
+}
+
+/** Admin: UserService.switchStatus */
+export function switchUserStatus(userId) {
+  const user = state.users.find((u) => u.id === userId);
+  if (!user) {
+    return;
+  }
+  user.active = !user.active;
+  user.updatedOn = nowIso();
+  persist();
+}
+
+/** Admin: UserService.switchRole */
+export function switchUserRole(userId) {
+  const user = state.users.find((u) => u.id === userId);
+  if (!user) {
+    return;
+  }
+  user.role = user.role === 'USER' ? 'ADMIN' : 'USER';
+  user.updatedOn = nowIso();
+  persist();
+}

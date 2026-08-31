@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&amp;display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="css/common.css">
+  <link rel="stylesheet" type="text/css" href="css/nav-side-bar.css">
+  <link rel="stylesheet" type="text/css" href="css/home-common.css">
+  <link rel="stylesheet" type="text/css" href="css/home.css">
+  <link rel="stylesheet" type="text/css" href="css/subscription-history.css">
+  <link rel="stylesheet" type="text/css" href="css/demo.css">
+  <title>Users &middot; Smart Wallet</title>
+</head>
+<body>
+<main>
+  <div class="nav-bar"></div>
+  <div class="home-section">
+    <div class="single-section-box subscriptions-container">
+      <table class="styled-table">
+        <thead>
+        <tr>
+          <th>Id</th>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Country</th>
+          <th>Status</th>
+          <th>Created on</th>
+          <th>Switch status</th>
+          <th>Switch role</th>
+        </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+<div class="footer"></div>
+
+<script type="module">
+  import { requireUser, allUsers, switchUserStatus, switchUserRole } from './js/store.js';
+  import { initPage, formatDateTime } from './js/ui.js';
+
+  initPage('users');
+  const user = requireUser();
+  if (user) {
+    if (user.role !== 'ADMIN') {
+      window.location.href = 'home.html';
+    } else {
+      const rows = document.getElementById('rows');
+      const users = allUsers();
+
+      for (const u of users) {
+        const tr = document.createElement('tr');
+
+        const idCell = document.createElement('td');
+        idCell.textContent = u.id;
+
+        const usernameCell = document.createElement('td');
+        usernameCell.textContent = u.username;
+
+        const emailCell = document.createElement('td');
+        emailCell.textContent = u.email || 'no email';
+
+        const roleCell = document.createElement('td');
+        roleCell.textContent = u.role === 'ADMIN' ? 'Admin' : 'User';
+
+        const countryCell = document.createElement('td');
+        countryCell.textContent = u.country ? u.country.charAt(0).toUpperCase() + u.country.slice(1).toLowerCase() : '';
+
+        const statusCell = document.createElement('td');
+        const status = document.createElement('p');
+        status.className = `status ${u.active ? 'active' : 'terminated'}`;
+        status.textContent = u.active ? 'Active' : 'Inactive';
+        statusCell.append(status);
+
+        const createdCell = document.createElement('td');
+        createdCell.textContent = formatDateTime(u.createdOn);
+
+        const switchStatusCell = document.createElement('td');
+        const statusBtn = document.createElement('button');
+        statusBtn.className = 'profile-actions-button';
+        statusBtn.type = 'button';
+        statusBtn.innerHTML = `
+          <p>Switch</p>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-toggle-on" viewBox="0 0 16 16">
+            <path d="M5 3a5 5 0 0 0 0 10h6a5 5 0 0 0 0-10zm6 9a4 4 0 1 1 0-8 4 4 0 0 1 0 8"></path>
+          </svg>`;
+        statusBtn.addEventListener('click', () => {
+          switchUserStatus(u.id);
+          window.location.reload();
+        });
+        switchStatusCell.append(statusBtn);
+
+        const switchRoleCell = document.createElement('td');
+        const roleBtn = document.createElement('button');
+        roleBtn.className = 'profile-actions-button';
+        roleBtn.type = 'button';
+        roleBtn.innerHTML = `
+          <p>Switch</p>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-toggle-on" viewBox="0 0 16 16">
+            <path d="M5 3a5 5 0 0 0 0 10h6a5 5 0 0 0 0-10zm6 9a4 4 0 1 1 0-8 4 4 0 0 1 0 8"></path>
+          </svg>`;
+        roleBtn.addEventListener('click', () => {
+          switchUserRole(u.id);
+          window.location.reload();
+        });
+        switchRoleCell.append(roleBtn);
+
+        tr.append(idCell, usernameCell, emailCell, roleCell, countryCell, statusCell, createdCell, switchStatusCell, switchRoleCell);
+        rows.append(tr);
+      }
+    }
+  }
+</script>
+</body>
+</html>
