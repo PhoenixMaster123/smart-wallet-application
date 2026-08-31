@@ -2,7 +2,7 @@
 // templates, so it is rendered from one place here rather than pasted seven
 // times, and the icons are the same paths the Thymeleaf pages use.
 
-import { currentUser, signOut, refresh } from './store.js?v=1.0.3';
+import { currentUser, signOut, refresh } from './store.js?v=1.0.5';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];

@@ -10,7 +10,7 @@
 import {
   SEED_LOGIN, SEED_USERS, SEED_WALLETS, SEED_SUBSCRIPTIONS, SEED_TRANSACTIONS,
   SUBSCRIPTION_PRICES, SMART_WALLET_IDENTIFIER, localIso,
-} from './seed.js?v=1.0.3';
+} from './seed.js?v=1.0.5';
 
 const KEY = 'smart-wallet-demo-v3';
 
@@ -266,6 +266,18 @@ export function requireUser() {
 export function reset() {
   state = freshState();
   persist();
+}
+
+/**
+ * Re-reads the registry a restored page is holding a stale copy of.
+ *
+ * The back button can bring a page back without re-running this module, so the
+ * `state` in memory is still the one from before the visitor navigated away -
+ * without the transfer they made in between. Reading sessionStorage again is
+ * enough, since every write persists before the page it was made on unloads.
+ */
+export function resync() {
+  state = read();
 }
 
 /* ------------------------------------------------------------------- reads */
