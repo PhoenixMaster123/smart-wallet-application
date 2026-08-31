@@ -9,8 +9,8 @@
 
 import {
   SEED_LOGIN, SEED_USERS, SEED_WALLETS, SEED_SUBSCRIPTIONS, SEED_TRANSACTIONS,
-  SUBSCRIPTION_PRICES, SMART_WALLET_IDENTIFIER,
-} from './seed.js?v=1.0.2';
+  SUBSCRIPTION_PRICES, SMART_WALLET_IDENTIFIER, localIso,
+} from './seed.js?v=1.0.3';
 
 const KEY = 'smart-wallet-demo-v3';
 
@@ -22,6 +22,8 @@ const SELF_RELOAD_KEY = 'smart-wallet-demo-self-reload';
 const INACTIVE_WALLET_FAILURE_REASON = 'Inactive wallet';
 const INSUFFICIENT_FUNDS_FAILURE_REASON = 'Not enough funds';
 const WALLET_NOT_OWNED_BY_USER_FAILURE_REASON = 'Wallet not owned by user';
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const TRANSFER_DESCRIPTION_FORMAT = 'Transfer %s <> %s (%s EUR)';
 
 function freshState() {
@@ -138,18 +140,6 @@ function uuid() {
     const r = (Math.random() * 16) | 0;
     return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
   });
-}
-
-/**
- * A LocalDateTime, the way the entities store one: no zone, no offset.
- *
- * toISOString() would convert to UTC, and the pages parse these strings back as
- * local time, so every stored timestamp would come out shifted by the offset.
- */
-function localIso(date) {
-  const pad = (n) => String(n).padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
-       + `T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
 }
 
 function nowIso() {
@@ -320,6 +310,168 @@ export function transactionById(id) {
 }
 
 export { SUBSCRIPTION_PRICES };
+
+/* --------------------------------------------------------------- analytics */
+
+// Every description the services write starts with one of these, which is the
+// only place the shape of a movement is recorded - the rows themselves only
+// know DEPOSIT or WITHDRAWAL.
+const SUBSCRIPTION_DESCRIPTION = 'Upgrade request for';
+const TRANSFER_DESCRIPTION = 'Transfer ';
+const TOP_UP_DESCRIPTION = 'Top-up';
+
+const TRANSFER_PARTIES = /^Transfer (.+?) <> (.+?) \(/;
+
+export const CATEGORY_TRANSFERS = 'Transfers';
+export const CATEGORY_SUBSCRIPTIONS = 'Subscriptions';
+export const CATEGORY_TOP_UPS = 'Top-ups';
+export const CATEGORY_OTHER = 'Other';
+
+const WEEKS_CHARTED = 8;
+const COUNTERPARTIES_CHARTED = 5;
+
+/** What kind of movement a row is, read back out of its description. */
+export function categoryOf(transaction) {
+  const description = transaction.description || '';
+  if (description.startsWith(SUBSCRIPTION_DESCRIPTION)) {
+    return CATEGORY_SUBSCRIPTIONS;
+  }
+  if (description.startsWith(TRANSFER_DESCRIPTION)) {
+    return CATEGORY_TRANSFERS;
+  }
+  if (description.startsWith(TOP_UP_DESCRIPTION)) {
+    return CATEGORY_TOP_UPS;
+  }
+  return CATEGORY_OTHER;
+}
+
+/**
+ * Who the money moved to or from.
+ *
+ * A transfer books its withdrawal against SMART WALLET PLATFORM rather than the
+ * recipient's wallet, so the other party's name survives only in the
+ * description both halves share. Anything else moved against the platform.
+ */
+export function counterpartyOf(transaction, username) {
+  const parties = TRANSFER_PARTIES.exec(transaction.description || '');
+  if (!parties) {
+    return 'Smart Wallet';
+  }
+  const [, from, to] = parties;
+  if (from === username) {
+    return to;
+  }
+  if (to === username) {
+    return from;
+  }
+  return transaction.type === 'WITHDRAWAL' ? to : from;
+}
+
+function startOfWeek(date) {
+  const start = new Date(date);
+  // Monday, the way a European week reads.
+  const weekday = (start.getDay() + 6) % 7;
+  start.setDate(start.getDate() - weekday);
+  start.setHours(0, 0, 0, 0);
+  return start;
+}
+
+function shareOut(totals, total) {
+  return [...totals.entries()]
+    .map(([name, amount]) => ({
+      name,
+      amount: round(amount),
+      share: total > 0 ? amount / total : 0,
+    }))
+    .sort((a, b) => b.amount - a.amount);
+}
+
+function sumBy(rows, pick) {
+  const totals = new Map();
+  for (const row of rows) {
+    const key = pick(row);
+    totals.set(key, (totals.get(key) ?? 0) + row.amount);
+  }
+  return totals;
+}
+
+/**
+ * Everything the analytics page draws, for one user over one window.
+ *
+ * `days` is how far back the summary reaches; null covers everything. The
+ * weekly chart always runs over the last eight weeks regardless, so the shape
+ * of the last two months stays comparable whichever window is selected.
+ */
+export function analyticsOf(userId, days) {
+  const user = state.users.find((u) => u.id === userId);
+  const settled = transactionsOf(userId).filter((t) => t.status === 'SUCCEEDED');
+
+  const now = new Date();
+  const from = days === null ? null : new Date(now.getTime() - days * 86400000);
+  const previousFrom = from === null ? null : new Date(from.getTime() - days * 86400000);
+
+  const within = (transaction, start, end) => {
+    const moment = new Date(transaction.createdOn);
+    return (start === null || moment >= start) && (end === null || moment < end);
+  };
+
+  const current = settled.filter((t) => within(t, from, null));
+  const previous = from === null ? [] : settled.filter((t) => within(t, previousFrom, from));
+
+  const totalOf = (rows, type) => round(rows
+    .filter((t) => t.type === type)
+    .reduce((sum, t) => sum + t.amount, 0));
+
+  const moneyIn = totalOf(current, 'DEPOSIT');
+  const moneyOut = totalOf(current, 'WITHDRAWAL');
+  const previousOut = totalOf(previous, 'WITHDRAWAL');
+
+  const spent = current.filter((t) => t.type === 'WITHDRAWAL');
+  const categories = shareOut(sumBy(spent, categoryOf), moneyOut);
+  const everyone = shareOut(sumBy(spent, (t) => counterpartyOf(t, user.username)), moneyOut);
+
+  // Past the fifth slice a donut stops saying anything, so the tail is one.
+  const counterparties = everyone.slice(0, COUNTERPARTIES_CHARTED);
+  const tail = everyone.slice(COUNTERPARTIES_CHARTED);
+  if (tail.length > 0) {
+    counterparties.push({
+      name: CATEGORY_OTHER,
+      amount: round(tail.reduce((sum, entry) => sum + entry.amount, 0)),
+      share: tail.reduce((sum, entry) => sum + entry.share, 0),
+    });
+  }
+
+  const weeks = [];
+  const thisWeek = startOfWeek(now);
+  for (let back = WEEKS_CHARTED - 1; back >= 0; back -= 1) {
+    const start = new Date(thisWeek);
+    start.setDate(start.getDate() - back * 7);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 7);
+
+    const rows = settled.filter((t) => within(t, start, end));
+    weeks.push({
+      start,
+      label: `${start.getDate()} ${MONTHS[start.getMonth()]}`,
+      moneyIn: totalOf(rows, 'DEPOSIT'),
+      moneyOut: totalOf(rows, 'WITHDRAWAL'),
+    });
+  }
+
+  return {
+    from,
+    moneyIn,
+    moneyOut,
+    net: round(moneyIn - moneyOut),
+    previousOut,
+    // Null rather than Infinity when there is nothing to compare against.
+    outChange: previousOut > 0 ? (moneyOut - previousOut) / previousOut : null,
+    categories,
+    counterparties,
+    weeks,
+    movements: current.length,
+  };
+}
 
 /* ------------------------------------------------------------------ writes */
 
