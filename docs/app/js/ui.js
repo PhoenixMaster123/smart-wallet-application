@@ -104,28 +104,8 @@ export function renderFooter() {
   footer.innerHTML = `<p>&copy; 2025 Smart Wallet. All rights reserved. ${which}</p>`;
 }
 
-/**
- * States plainly that nothing here is talking to a server. PMS labels its demo
- * build the same way, and an unlabelled demo invites people to read it as live.
- */
-export function renderDemoBanner() {
-  const bar = document.createElement('div');
-  bar.className = 'demo-banner';
-  bar.innerHTML = `
-    <span><strong>Demo</strong> &mdash; no backend. State lives in this tab only.</span>
-    <button type="button" data-reset>Reset data</button>`;
-  document.body.prepend(bar);
-
-  bar.querySelector('[data-reset]').addEventListener('click', async () => {
-    const { reset } = await import('./store.js');
-    reset();
-    window.location.href = 'index.html';
-  });
-}
-
 /** Draws the chrome every signed-in page shares. */
 export function initPage(active) {
-  renderDemoBanner();
   renderSidebar(active);
   renderFooter();
 }
