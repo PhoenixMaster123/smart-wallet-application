@@ -2,22 +2,23 @@
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 24px;
-  padding: 10px 0 40px;
+  padding: 0 0 40px;
   width: 100%;
 }
 
 .wallet-block {
   padding: 16px 20px;
-  width: 320px;
-  min-width: 290px;
+  width: 310px;
+  min-width: 280px;
+  max-width: 340px;
   background: #ffffff;
   border-radius: 12px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .wallet-actions {
@@ -29,25 +30,40 @@
 }
 
 .wallet-activity {
-  margin-top: 20px;
+  margin-top: 16px;
   display: flex;
   flex-direction: column;
   padding: 0;
   background: transparent;
+  max-height: 160px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(116, 106, 176, 0.3) transparent;
+}
+
+.wallet-activity::-webkit-scrollbar {
+  width: 4px;
+}
+
+.wallet-activity::-webkit-scrollbar-thumb {
+  background-color: rgba(116, 106, 176, 0.4);
+  border-radius: 4px;
 }
 
 .activity-entry {
   display: flex;
   width: 100%;
-  gap: 20px;
+  gap: 12px;
   align-items: center;
   margin-top: 8px;
+  padding-right: 4px;
 }
 
 .activity-entry-description-and-date {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   align-items: start;
 }
 
@@ -57,9 +73,13 @@
 }
 
 .activity-entry-description {
-  font-size: 14px;
+  font-size: 13px;
   color: #494949;
-  font-weight: 300;
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
 }
 
 .activity-entry-date {
@@ -69,8 +89,9 @@
 
 .activity-entry-amount {
   margin-left: auto;
-  font-weight: 200;
-  font-size: 14px;
+  font-weight: 500;
+  font-size: 13px;
+  white-space: nowrap;
 }
 
 .amount-in {
@@ -92,9 +113,9 @@
   cursor: pointer;
   transition: background-color 0.4s, transform 0.4s;
   padding: 0;
-  min-height: 380px;
-  width: 320px;
-  min-width: 290px;
+  min-height: 440px;
+  width: 310px;
+  min-width: 280px;
   box-sizing: border-box;
 }
 

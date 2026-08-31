@@ -19,11 +19,14 @@ body main {
   display: flex;
   align-items: flex-start;
   gap: 26px;
-  min-height: calc(100vh - 80px);
 }
 
 .footer {
   color: #e5e5e5;
+  text-align: center;
+  padding: 30px 0 20px;
+  width: 100%;
+  clear: both;
 }
 
 .home-section {
