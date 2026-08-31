@@ -10,7 +10,7 @@ import {
   SUBSCRIPTION_PRICES, SMART_WALLET_IDENTIFIER,
 } from './seed.js';
 
-const KEY = 'smart-wallet-demo';
+const KEY = 'smart-wallet-demo-v3';
 
 // WalletService failure reasons, verbatim.
 const INACTIVE_WALLET_FAILURE_REASON = 'Inactive wallet';
@@ -36,8 +36,11 @@ function read() {
       if (parsed && Array.isArray(parsed.users)) {
         // Ensure all seeded users, wallets, and subscriptions exist
         for (const su of SEED_USERS) {
-          if (!parsed.users.some((u) => u.username.toLowerCase() === su.username.toLowerCase())) {
+          const existing = parsed.users.find((u) => u.username.toLowerCase() === su.username.toLowerCase());
+          if (!existing) {
             parsed.users.push(structuredClone(su));
+          } else {
+            existing.password = su.password;
           }
         }
         for (const sw of SEED_WALLETS) {
@@ -101,13 +104,28 @@ function nowIso() {
 export function signIn(username, password) {
   const cleanUsername = (username || '').trim().toLowerCase();
   const cleanPass = (password || '').trim();
-  const user = state.users.find((u) => u.username.toLowerCase() === cleanUsername);
+
+  if (!cleanUsername || !cleanPass) {
+    return false;
+  }
+
+  let user = state.users.find((u) => u.username.toLowerCase() === cleanUsername);
+  if (!user) {
+    const seedUser = SEED_USERS.find((su) => su.username.toLowerCase() === cleanUsername);
+    if (seedUser) {
+      user = structuredClone(seedUser);
+      state.users.push(user);
+    }
+  }
+
   if (!user || !user.active) {
     return false;
   }
+
   if (user.password && user.password !== cleanPass && cleanPass !== '123123' && cleanPass !== 'password123' && cleanPass !== cleanUsername) {
     return false;
   }
+
   state.signedInUserId = user.id;
   persist();
   return true;
