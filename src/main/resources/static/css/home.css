@@ -364,3 +364,22 @@
 .home-profile-information a.profile-actions-button {
   margin-top: 40px;
 }
+
+/* Four columns in a half-width card ask for more than the column holds on a
+   narrow screen, and the overflow pushed the whole dashboard sideways. They
+   share the row instead. */
+.home-subscription .styled-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.home-subscription .styled-table thead th,
+.home-subscription .styled-table tbody td {
+  padding: 12px 4px;
+}
+
+/* RENEWAL is the widest heading and the column it gets is a quarter of a
+   half-width card, so it takes a size that fits inside one. */
+.home-subscription .styled-table thead th {
+  font-size: 12px;
+}
