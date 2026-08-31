@@ -1,19 +1,21 @@
-/* A wide table must not push the page sideways: the section scrolls instead. */
 .home-section {
     display: flex;
     justify-content: flex-start;
     min-width: 0;
     height: auto;
-    overflow-x: auto;
 }
 
+/* The card used to clip whatever the table could not fit into it, which hid
+   the first and last column outright. It scrolls now, and starts at the left
+   edge so the first column is the one you see. */
 .single-section-box.transactions-container {
     position: relative;
     display: flex;
     align-items: flex-start;
-    justify-content: center;
+    justify-content: flex-start;
     width: 100%;
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
 
 }
 
@@ -38,12 +40,14 @@
     left: -100px;
 }
 
+/* Held inside the card: anything hanging off its right or bottom edge would
+   be something to scroll to now that the card scrolls. */
 .single-section-box.transactions-container::after {
     width: 400px;
     height: 130px;
     background: radial-gradient(circle, rgb(135 102 255 / 47%), #ff676780);
-    bottom: -40px;
-    right: -180px;
+    bottom: 0;
+    right: 0;
 }
 
 .centered {

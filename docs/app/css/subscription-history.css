@@ -1,21 +1,22 @@
-/* A wide table must not push the page sideways: the section scrolls instead. */
 .home-section {
   display: flex;
   justify-content: flex-start;
   min-width: 0;
   height: auto;
-  overflow-x: auto;
 }
 
-/* Without this the single row of a one-subscription history stretches to the
-   full height of the card. */
+/* Two fixes in one: align-items keeps the single row of a one-subscription
+   history from stretching to the full height of the card, and the card scrolls
+   rather than clipping a table too wide for it - clipping hid the first and
+   last column of the users table outright. */
 .single-section-box.subscriptions-container {
   position: relative;
   display: flex;
   align-items: flex-start;
-  justify-content: center;
+  justify-content: flex-start;
   width: 100%;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
 
 }
 
@@ -40,12 +41,14 @@
   left: -100px;
 }
 
+/* Held inside the card: anything hanging off its right or bottom edge would
+   be something to scroll to now that the card scrolls. */
 .single-section-box.subscriptions-container::after {
   width: 400px;
   height: 130px;
   background: radial-gradient(circle, rgb(135 102 255 / 47%), #ff676780);
-  bottom: -40px;
-  right: -180px;
+  bottom: 0;
+  right: 0;
 }
 
 .centered {
@@ -66,4 +69,78 @@
   background: transparent;
   box-shadow: none;
   border: transparent;
+}
+
+/* The users table carries nine columns. Left to size themselves they ask for
+   more than the card can give, and the columns at either end are the ones that
+   fall off it, so they share the row instead. The percentages add up to 100
+   and are budgeted around what each heading needs to stay on one line. */
+.styled-table.users-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.styled-table.users-table thead th,
+.styled-table.users-table tbody td {
+  padding: 10px 8px;
+}
+
+/* Only the id and the address are long enough to need breaking mid-word;
+   everywhere else it would split headings like USERNAME across two lines. */
+.styled-table.users-table td:nth-child(1),
+.styled-table.users-table td:nth-child(3) {
+  overflow-wrap: anywhere;
+}
+
+.styled-table.users-table th:nth-child(1),
+.styled-table.users-table td:nth-child(1) {
+  width: 15%;
+}
+
+.styled-table.users-table th:nth-child(2),
+.styled-table.users-table td:nth-child(2) {
+  width: 12%;
+}
+
+.styled-table.users-table th:nth-child(3),
+.styled-table.users-table td:nth-child(3) {
+  width: 15%;
+}
+
+.styled-table.users-table th:nth-child(4),
+.styled-table.users-table td:nth-child(4) {
+  width: 8%;
+}
+
+.styled-table.users-table th:nth-child(5),
+.styled-table.users-table td:nth-child(5) {
+  width: 11%;
+}
+
+.styled-table.users-table th:nth-child(6),
+.styled-table.users-table td:nth-child(6) {
+  width: 10%;
+}
+
+.styled-table.users-table th:nth-child(7),
+.styled-table.users-table td:nth-child(7) {
+  width: 10%;
+}
+
+.styled-table.users-table th:nth-child(8),
+.styled-table.users-table td:nth-child(8),
+.styled-table.users-table th:nth-child(9),
+.styled-table.users-table td:nth-child(9) {
+  width: 9.5%;
+}
+
+/* The switch buttons take the column rather than a fixed 120px of it. */
+.styled-table.users-table .profile-actions-button {
+  width: 100%;
+  padding: 0;
+  gap: 2px;
+}
+
+.styled-table.users-table .status {
+  white-space: nowrap;
 }
