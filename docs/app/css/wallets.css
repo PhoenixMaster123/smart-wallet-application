@@ -1,7 +1,7 @@
 .home-section {
   display: flex;
   flex-wrap: wrap;
-  align-items: stretch;
+  align-items: flex-start;
   justify-content: flex-start;
   gap: 24px;
   padding: 10px 0 40px;
@@ -9,7 +9,7 @@
 }
 
 .wallet-block {
-  padding: 16px 24px;
+  padding: 16px 20px;
   width: 320px;
   min-width: 290px;
   background: #ffffff;
@@ -17,6 +17,7 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .wallet-actions {
@@ -28,13 +29,11 @@
 }
 
 .wallet-activity {
-  margin-top: 26px;
+  margin-top: 20px;
   display: flex;
   flex-direction: column;
-  padding: 4px 14px;
-  border-radius: 12px;
-  background: #ffffff;
-  flex-grow: 1;
+  padding: 0;
+  background: transparent;
 }
 
 .activity-entry {

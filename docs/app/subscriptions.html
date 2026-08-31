@@ -113,8 +113,16 @@
       for (const wallet of wallets) {
         const option = document.createElement('option');
         option.value = wallet.id;
-        option.textContent = `${wallet.nickname} ${money(wallet.balance)} ${wallet.currency}`;
+        const statusLabel = wallet.status === 'ACTIVE' ? '' : ' (INACTIVE)';
+        option.textContent = `${wallet.nickname}${statusLabel} - ${money(wallet.balance)} ${wallet.currency}`;
+        if (wallet.status !== 'ACTIVE') {
+          option.disabled = true;
+        }
         walletSelect.append(option);
+      }
+      const firstActive = wallets.find((w) => w.status === 'ACTIVE');
+      if (firstActive) {
+        walletSelect.value = firstActive.id;
       }
 
       const button = node.querySelector('.subscription-action-button');

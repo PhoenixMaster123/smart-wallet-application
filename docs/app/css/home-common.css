@@ -17,8 +17,9 @@ body {
 body main {
   margin: 20px 20px 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 26px;
+  min-height: calc(100vh - 80px);
 }
 
 .footer {

@@ -64,9 +64,16 @@
     for (const wallet of walletsOf(user.id)) {
       const option = document.createElement('option');
       option.value = wallet.id;
-      // textContent, not innerHTML: a nickname is user-supplied data.
-      option.textContent = `${wallet.nickname} - ${money(wallet.balance)} EURO`;
+      const statusLabel = wallet.status === 'ACTIVE' ? '' : ' (INACTIVE)';
+      option.textContent = `${wallet.nickname}${statusLabel} - ${money(wallet.balance)} EUR`;
+      if (wallet.status !== 'ACTIVE') {
+        option.disabled = true;
+      }
       select.append(option);
+    }
+    const firstActive = walletsOf(user.id).find((w) => w.status === 'ACTIVE');
+    if (firstActive) {
+      select.value = firstActive.id;
     }
 
     const error = document.getElementById('transfer-error');
