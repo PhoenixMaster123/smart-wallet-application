@@ -1,3 +1,5 @@
+/* 80px on each side is most of a narrow row, so the padding gives way before
+   the content does. */
 div.single-section-box {
-  padding:80px;
+  padding: clamp(24px, 6vw, 80px);
 }

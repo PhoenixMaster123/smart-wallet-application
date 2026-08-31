@@ -16,8 +16,15 @@
     overflow: hidden;
 }
 
+/* 800px plus the 80px of padding on each side is wider than the row the
+   sidebar leaves, and a centred box that does not fit spills over both edges -
+   over the sidebar on one side and off the page on the other. It takes the row
+   it is given now and stops growing at the width it used to demand. */
 .single-section-box.payment-result-container {
-    min-width: 800px;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 960px;
+    min-width: 0;
 }
 
 .single-section-box.payment-result-container::before,
@@ -38,12 +45,13 @@
     left: -100px;
 }
 
+/* Held inside the card so the glow cannot widen the page. */
 .single-section-box.payment-result-container::after {
     width: 400px;
     height: 130px;
     background: radial-gradient(circle, rgb(135 102 255 / 47%), #ff676780);
-    bottom: -40px;
-    right: -180px;
+    bottom: 0;
+    right: 0;
 }
 
 .payment-box .payment-header {
@@ -122,4 +130,5 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 0;
 }
