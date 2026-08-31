@@ -10,7 +10,10 @@ tiers that are charged against a wallet balance.
 
 The demo is the application's own templates and stylesheets running against a
 seeded registry in the browser, so transfers, top-ups and subscription upgrades
-all work with no backend behind them. State lives in `sessionStorage`.
+all work with no backend behind them. It opens on a couple of months of seeded
+movements, which is what the analytics page reads. State lives in
+`sessionStorage`, and reloading the page starts the demo over on the login
+screen.
 
 ## Requirements
 
@@ -65,6 +68,7 @@ Packages are organised by feature rather than by layer.
 | Package | Holds |
 | --- | --- |
 | `app.user`, `app.wallet`, `app.transaction`, `app.subscription` | Model, repository and service per feature |
+| `app.analytics` | Reads transactions back as a spending summary |
 | `app.web` | Controllers, DTOs and mappers |
 | `app.security` | `UserDetails` implementation |
 | `app.notification`, `app.init` | OpenFeign clients for other services |

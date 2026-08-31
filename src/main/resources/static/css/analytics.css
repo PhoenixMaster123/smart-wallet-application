@@ -1,0 +1,388 @@
+/* Four cards on a twelve column grid: the totals and the categories run the
+   full width, the donut and the eight week chart share the row between them. */
+.home-section {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-column-gap: 24px;
+  grid-row-gap: 24px;
+  align-content: start;
+  width: 100%;
+  min-width: 0;
+  height: auto;
+  margin-right: 0;
+  padding-bottom: 40px;
+}
+
+.single-section-box.analytics-summary,
+.single-section-box.analytics-categories {
+  grid-column: span 12;
+}
+
+.single-section-box.analytics-breakdown {
+  grid-column: span 5;
+}
+
+.single-section-box.analytics-trend {
+  grid-column: span 7;
+}
+
+/* Below this the two halves of the middle row are too narrow to read. */
+@media (max-width: 980px) {
+  .single-section-box.analytics-breakdown,
+  .single-section-box.analytics-trend {
+    grid-column: span 12;
+  }
+}
+
+.single-section-box.analytics-summary,
+.single-section-box.analytics-breakdown,
+.single-section-box.analytics-trend,
+.single-section-box.analytics-categories {
+  box-sizing: border-box;
+  min-width: 0;
+  text-align: left;
+  padding: 20px 24px 24px;
+}
+
+.home-section h2,
+.home-section h3 {
+  margin: 0 0 16px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  color: #333333;
+}
+
+.home-section h2 {
+  font-size: 22px;
+  margin-bottom: 0;
+}
+
+.home-section h3 {
+  font-size: 15px;
+}
+
+/* ------------------------------------------------------------------ totals */
+
+.analytics-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.analytics-periods {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: #f2f2f7;
+}
+
+/* A button in the demo, a link in the application: both have to look the same. */
+.analytics-period {
+  display: inline-block;
+  border: none;
+  border-radius: 999px;
+  padding: 7px 16px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.2;
+  color: #56508d;
+  background: transparent;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.analytics-period:hover {
+  background: rgba(116, 106, 176, 0.12);
+}
+
+.analytics-period.active {
+  color: #ffffff;
+  background: radial-gradient(circle at 90% top, #746ab0 0%, #6a61a4 20%, #56508d 50%, #2e2d5a 100%);
+  box-shadow: 0 2px 8px rgba(86, 80, 141, 0.35);
+}
+
+.analytics-totals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+}
+
+.analytics-total {
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #f8f9fa;
+}
+
+.analytics-total-label {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 300;
+  color: #7b8794;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.analytics-total-value {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  color: #333333;
+  white-space: nowrap;
+}
+
+.analytics-insight {
+  margin: 16px 0 0;
+  font-size: 13px;
+  font-weight: 300;
+  color: #666666;
+}
+
+/* ------------------------------------------------------------------- donut */
+
+.analytics-donut-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: center;
+}
+
+.analytics-donut {
+  position: relative;
+  flex: 0 0 160px;
+  width: 160px;
+  height: 160px;
+}
+
+.analytics-donut svg {
+  width: 100%;
+  height: 100%;
+  /* Start the first slice at twelve o'clock rather than three. */
+  transform: rotate(-90deg);
+}
+
+.analytics-donut-track {
+  fill: none;
+  stroke: #f0f0f5;
+  stroke-width: 18;
+}
+
+.analytics-donut-slice {
+  fill: none;
+  stroke-width: 18;
+  transition: stroke-width 0.2s ease;
+}
+
+.analytics-donut-slice:hover {
+  stroke-width: 22;
+}
+
+.analytics-donut-centre {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.analytics-donut-amount {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #333333;
+}
+
+.analytics-donut-caption {
+  margin: 2px 0 0;
+  font-size: 11px;
+  font-weight: 300;
+  color: #7b8794;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.analytics-legend {
+  flex: 1 1 200px;
+  min-width: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.analytics-empty {
+  padding: 12px 0;
+  color: #7b8794;
+  font-size: 13px;
+}
+
+.analytics-legend li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #494949;
+}
+
+.analytics-legend-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.analytics-legend-amount {
+  margin-left: auto;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.analytics-legend-share {
+  width: 38px;
+  text-align: right;
+  color: #a4a4a4;
+  font-size: 12px;
+}
+
+.analytics-swatch {
+  flex: 0 0 auto;
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: #b8b8c7;
+}
+
+/* ------------------------------------------------------------------- chart */
+
+.analytics-trend-key {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: #7b8794;
+}
+
+.analytics-trend-key span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.swatch-in {
+  background: rgba(57, 183, 63, 0.75);
+}
+
+.swatch-out {
+  background: #ff6767;
+}
+
+/* In above the line, out below it: the axis is the border between the two
+   halves, so a week reads at a glance without checking the key. */
+.analytics-chart {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  height: 200px;
+}
+
+.analytics-column {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.analytics-column-half {
+  flex: 1 1 50%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  border-bottom: 1px solid #e6e6ee;
+}
+
+.analytics-column-half.below {
+  align-items: flex-start;
+  border-bottom: none;
+}
+
+.analytics-bar {
+  width: 60%;
+  max-width: 26px;
+  min-height: 2px;
+  border-radius: 4px 4px 0 0;
+  transition: opacity 0.2s ease;
+}
+
+.analytics-column-half.below .analytics-bar {
+  border-radius: 0 0 4px 4px;
+}
+
+.analytics-bar:hover {
+  opacity: 0.75;
+}
+
+.analytics-column-label {
+  margin: 8px 0 0;
+  text-align: center;
+  font-size: 10px;
+  color: #a4a4a4;
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------- category */
+
+.analytics-ranked {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.analytics-ranked li {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+  color: #494949;
+}
+
+.analytics-ranked-name {
+  flex: 0 0 130px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.analytics-ranked-track {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 10px;
+  border-radius: 999px;
+  background: #f0f0f5;
+  overflow: hidden;
+}
+
+.analytics-ranked-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+}
+
+.analytics-ranked-amount {
+  flex: 0 0 auto;
+  font-weight: 500;
+  white-space: nowrap;
+}

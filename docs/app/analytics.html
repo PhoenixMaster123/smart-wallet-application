@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&amp;display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="css/common.css">
+  <link rel="stylesheet" type="text/css" href="css/nav-side-bar.css">
+  <link rel="stylesheet" type="text/css" href="css/home-common.css">
+  <link rel="stylesheet" type="text/css" href="css/home.css">
+  <link rel="stylesheet" type="text/css" href="css/analytics.css">
+  <link rel="stylesheet" type="text/css" href="css/demo.css">
+  <title>Analytics &middot; Smart Wallet</title>
+</head>
+<body>
+<main>
+  <div class="nav-bar"></div>
+  <div class="home-section">
+
+    <div class="single-section-box analytics-summary">
+      <div class="analytics-heading">
+        <h2>Analytics</h2>
+        <div class="analytics-periods" id="periods" role="tablist"></div>
+      </div>
+
+      <div class="analytics-totals">
+        <div class="analytics-total">
+          <p class="analytics-total-label">Money in</p>
+          <p class="analytics-total-value amount-in" id="money-in">0.00 EUR</p>
+        </div>
+        <div class="analytics-total">
+          <p class="analytics-total-label">Money out</p>
+          <p class="analytics-total-value amount-out" id="money-out">0.00 EUR</p>
+        </div>
+        <div class="analytics-total">
+          <p class="analytics-total-label">Net</p>
+          <p class="analytics-total-value" id="net">0.00 EUR</p>
+        </div>
+        <div class="analytics-total">
+          <p class="analytics-total-label">Movements</p>
+          <p class="analytics-total-value" id="movements">0</p>
+        </div>
+      </div>
+
+      <p class="analytics-insight" id="insight"></p>
+    </div>
+
+    <div class="single-section-box analytics-breakdown">
+      <h3>Where your money went</h3>
+      <div class="analytics-donut-row">
+        <div class="analytics-donut">
+          <svg viewBox="0 0 160 160" role="img" aria-labelledby="donut-title">
+            <title id="donut-title">Money out by counterparty</title>
+            <circle class="analytics-donut-track" cx="80" cy="80" r="60"></circle>
+            <g id="donut-slices"></g>
+          </svg>
+          <div class="analytics-donut-centre">
+            <p class="analytics-donut-amount" id="donut-total">0.00</p>
+            <p class="analytics-donut-caption">EUR out</p>
+          </div>
+        </div>
+        <ul class="analytics-legend" id="legend"></ul>
+      </div>
+    </div>
+
+    <div class="single-section-box analytics-trend">
+      <h3>Last 8 weeks</h3>
+      <div class="analytics-trend-key">
+        <span><i class="analytics-swatch swatch-in"></i>In</span>
+        <span><i class="analytics-swatch swatch-out"></i>Out</span>
+      </div>
+      <div class="analytics-chart" id="chart"></div>
+    </div>
+
+    <div class="single-section-box analytics-categories">
+      <h3>By category</h3>
+      <ul class="analytics-ranked" id="categories"></ul>
+    </div>
+
+  </div>
+</main>
+<div class="footer"></div>
+
+<script type="module">
+  import { requireUser, analyticsOf } from './js/store.js?v=1.0.3';
+  import { initPage, money } from './js/ui.js?v=1.0.3';
+
+  initPage('analytics');
+  const user = requireUser();
+  if (user) {
+    const PERIODS = [
+      { label: 'This month', days: 30, noun: 'month' },
+      { label: '3 months', days: 90, noun: 'quarter' },
+      { label: 'All time', days: null, noun: null },
+    ];
+
+    // The tier palette the rest of the application already uses, then two more
+    // for the accounts a busy wallet reaches past the first three.
+    const SLICE_COLOURS = ['#746ab0', '#ff6767', '#f1c40f', '#4bb3fd', '#39b73f'];
+    const TAIL_COLOUR = '#b8b8c7';
+
+    const CIRCUMFERENCE = 2 * Math.PI * 60;
+
+    let selected = PERIODS[0];
+
+    const periods = document.getElementById('periods');
+    for (const period of PERIODS) {
+      const tab = document.createElement('button');
+      tab.type = 'button';
+      tab.className = 'analytics-period';
+      tab.textContent = period.label;
+      tab.addEventListener('click', () => {
+        selected = period;
+        render();
+      });
+      period.tab = tab;
+      periods.append(tab);
+    }
+
+    const set = (id, value) => { document.getElementById(id).textContent = value; };
+
+    function colourFor(entry, index) {
+      return entry.name === 'Other' ? TAIL_COLOUR : SLICE_COLOURS[index % SLICE_COLOURS.length];
+    }
+
+    function renderDonut(summary) {
+      const slices = document.getElementById('donut-slices');
+      const legend = document.getElementById('legend');
+      slices.replaceChildren();
+      legend.replaceChildren();
+
+      set('donut-total', money(summary.moneyOut));
+
+      if (summary.counterparties.length === 0) {
+        const empty = document.createElement('li');
+        empty.className = 'analytics-empty';
+        empty.textContent = 'Nothing went out in this period.';
+        legend.append(empty);
+        return;
+      }
+
+      // Each arc is one dash the length of its share, walked round the circle.
+      let travelled = 0;
+      summary.counterparties.forEach((entry, index) => {
+        const length = entry.share * CIRCUMFERENCE;
+        const arc = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        arc.setAttribute('class', 'analytics-donut-slice');
+        arc.setAttribute('cx', '80');
+        arc.setAttribute('cy', '80');
+        arc.setAttribute('r', '60');
+        arc.setAttribute('stroke', colourFor(entry, index));
+        arc.setAttribute('stroke-dasharray', `${length} ${CIRCUMFERENCE - length}`);
+        arc.setAttribute('stroke-dashoffset', `${-travelled}`);
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        label.textContent = `${entry.name}: ${money(entry.amount)} EUR`;
+        arc.append(label);
+        slices.append(arc);
+        travelled += length;
+
+        const row = document.createElement('li');
+        const swatch = document.createElement('i');
+        swatch.className = 'analytics-swatch';
+        swatch.style.backgroundColor = colourFor(entry, index);
+        const name = document.createElement('span');
+        name.className = 'analytics-legend-name';
+        name.textContent = entry.name;
+        const amount = document.createElement('span');
+        amount.className = 'analytics-legend-amount';
+        amount.textContent = `${money(entry.amount)} EUR`;
+        const share = document.createElement('span');
+        share.className = 'analytics-legend-share';
+        share.textContent = `${Math.round(entry.share * 100)}%`;
+        row.append(swatch, name, amount, share);
+        legend.append(row);
+      });
+    }
+
+    function renderChart(summary) {
+      const chart = document.getElementById('chart');
+      chart.replaceChildren();
+
+      // One scale for both halves, so a tall in bar and a tall out bar mean
+      // the same thing.
+      const peak = Math.max(
+        ...summary.weeks.map((week) => Math.max(week.moneyIn, week.moneyOut)),
+        1,
+      );
+
+      for (const week of summary.weeks) {
+        const column = document.createElement('div');
+        column.className = 'analytics-column';
+
+        const above = document.createElement('div');
+        above.className = 'analytics-column-half';
+        const inBar = document.createElement('div');
+        inBar.className = 'analytics-bar swatch-in';
+        inBar.style.height = `${(week.moneyIn / peak) * 100}%`;
+        inBar.title = `In ${money(week.moneyIn)} EUR`;
+        above.append(inBar);
+
+        const below = document.createElement('div');
+        below.className = 'analytics-column-half below';
+        const outBar = document.createElement('div');
+        outBar.className = 'analytics-bar swatch-out';
+        outBar.style.height = `${(week.moneyOut / peak) * 100}%`;
+        outBar.title = `Out ${money(week.moneyOut)} EUR`;
+        below.append(outBar);
+
+        const label = document.createElement('p');
+        label.className = 'analytics-column-label';
+        label.textContent = week.label;
+
+        column.append(above, below, label);
+        chart.append(column);
+      }
+    }
+
+    function renderCategories(summary) {
+      const list = document.getElementById('categories');
+      list.replaceChildren();
+
+      if (summary.categories.length === 0) {
+        const empty = document.createElement('li');
+        empty.className = 'analytics-empty';
+        empty.textContent = 'No spending in this period.';
+        list.append(empty);
+        return;
+      }
+
+      for (const [index, entry] of summary.categories.entries()) {
+        const row = document.createElement('li');
+
+        const name = document.createElement('span');
+        name.className = 'analytics-ranked-name';
+        name.textContent = entry.name;
+
+        const track = document.createElement('span');
+        track.className = 'analytics-ranked-track';
+        const fill = document.createElement('span');
+        fill.className = 'analytics-ranked-fill';
+        fill.style.width = `${Math.max(entry.share * 100, 2)}%`;
+        fill.style.backgroundColor = SLICE_COLOURS[index % SLICE_COLOURS.length];
+        track.append(fill);
+
+        const amount = document.createElement('span');
+        amount.className = 'analytics-ranked-amount';
+        amount.textContent = `${money(entry.amount)} EUR`;
+
+        row.append(name, track, amount);
+        list.append(row);
+      }
+    }
+
+    function renderInsight(summary) {
+      const insight = document.getElementById('insight');
+      insight.classList.remove('amount-in', 'amount-out');
+
+      if (selected.days === null) {
+        insight.textContent = summary.movements === 0
+          ? 'No movements yet. Send a transfer or top a wallet up to fill this in.'
+          : `${summary.movements} movement${summary.movements === 1 ? '' : 's'} since your first one.`;
+        return;
+      }
+
+      if (summary.outChange === null) {
+        insight.textContent = 'Nothing went out in the period before this one.';
+        return;
+      }
+
+      const change = Math.abs(Math.round(summary.outChange * 100));
+      if (change === 0) {
+        insight.textContent = `You spent the same as the previous ${selected.noun}.`;
+        return;
+      }
+
+      const direction = summary.outChange < 0 ? 'less' : 'more';
+      insight.classList.add(summary.outChange < 0 ? 'amount-in' : 'amount-out');
+      insight.textContent = `You spent ${change}% ${direction} than the previous ${selected.noun}.`;
+    }
+
+    function render() {
+      for (const period of PERIODS) {
+        period.tab.classList.toggle('active', period === selected);
+      }
+
+      const summary = analyticsOf(user.id, selected.days);
+
+      set('money-in', `${money(summary.moneyIn)} EUR`);
+      set('money-out', `${money(summary.moneyOut)} EUR`);
+      set('net', `${summary.net >= 0 ? '+' : ''}${money(summary.net)} EUR`);
+      set('movements', String(summary.movements));
+
+      const net = document.getElementById('net');
+      net.classList.toggle('amount-in', summary.net > 0);
+      net.classList.toggle('amount-out', summary.net < 0);
+
+      renderInsight(summary);
+      renderDonut(summary);
+      renderChart(summary);
+      renderCategories(summary);
+    }
+
+    render();
+  }
+</script>
+</body>
+</html>

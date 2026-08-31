@@ -28,3 +28,30 @@
 [hidden] {
     display: none !important;
 }
+
+/* The login page's credential hint. `form h3` uses `margin: auto`, which
+   collapses to no vertical space, so the gap under the heading is ours to
+   set. Centred to line up with the heading above it. */
+.demo-info-box {
+    margin: 22px 0 4px;
+    padding: 12px 14px;
+    background: rgba(255, 209, 102, 0.1);
+    border: 1px solid #ffd166;
+    border-radius: 6px;
+    color: #e4e7eb;
+    font-size: 13px;
+    line-height: 1.6;
+    text-align: center;
+}
+
+.demo-info-box strong {
+    display: block;
+    margin-bottom: 6px;
+    color: #ffd166;
+}
+
+.demo-info-box a {
+    display: block;
+    color: #e4e7eb;
+    text-decoration: none;
+}
