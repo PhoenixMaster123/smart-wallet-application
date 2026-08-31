@@ -50,6 +50,7 @@ export function renderSidebar(active) {
   if (!host) {
     return;
   }
+  const user = currentUser();
   host.innerHTML = `
     <div class="side-bar-container">
       <nav>
