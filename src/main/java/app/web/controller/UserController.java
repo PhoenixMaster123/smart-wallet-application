@@ -60,8 +60,8 @@ public class UserController {
 
     @PutMapping("/{id}/profile")
     @PreAuthorize("#id == principal.userId or hasRole('ADMIN')")
-    public ModelAndView updateProfile(@Valid EditProfileRequest editProfileRequest, @PathVariable UUID id,
-                                      BindingResult bindingResult) {
+    public ModelAndView updateProfile(@Valid EditProfileRequest editProfileRequest,
+                                      BindingResult bindingResult, @PathVariable UUID id) {
 
         if (bindingResult.hasErrors()) {
             User user = userService.getById(id);

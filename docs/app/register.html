@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&amp;display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="css/common.css">
+  <link rel="stylesheet" type="text/css" href="css/form.css">
+  <link rel="stylesheet" type="text/css" href="css/demo.css">
+  <title>Register &middot; Smart Wallet</title>
+</head>
+<body>
+
+<main>
+  <section class="section full-height">
+
+    <div class="container">
+      <a href="../index.html" class="logo-big">
+        <img src="images/smart-wallet-text-only.png" alt="Logo Image">
+      </a>
+    </div>
+
+    <form class="form" id="register-form" novalidate>
+
+      <h3>Register Here</h3>
+
+      <p class="alert-warning" id="register-error" hidden></p>
+
+      <label for="username">Username</label>
+      <input type="text" placeholder="Username" id="username" name="username" autocomplete="username">
+
+      <label for="password">Password</label>
+      <input type="password" placeholder="Password" id="password" name="password" autocomplete="new-password">
+
+      <label for="country">Country</label>
+      <select id="country" name="country">
+        <option value="BULGARIA" selected>BULGARIA</option>
+        <option value="GERMANY">GERMANY</option>
+        <option value="RUSSIA">RUSSIA</option>
+      </select>
+
+      <button type="submit">Register</button>
+
+      <p class="form-already">
+        Already have an account? <a href="index.html">Login</a>!
+      </p>
+
+    </form>
+
+  </section>
+</main>
+<div class="footer"><p>&copy; 2025 Smart Wallet. All rights reserved.</p></div>
+
+<script type="module">
+  import { register } from './js/store.js';
+  import { renderDemoBanner } from './js/ui.js';
+
+  renderDemoBanner();
+
+  const form = document.getElementById('register-form');
+  const error = document.getElementById('register-error');
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    const country = document.getElementById('country').value;
+
+    if (!username || username.length < 4 || username.length > 20) {
+      error.textContent = 'Username length must be between 4 and 20 characters';
+      error.hidden = false;
+      return;
+    }
+    if (!password || password.length < 4 || password.length > 20) {
+      error.textContent = 'Password length must be between 4 and 20 characters';
+      error.hidden = false;
+      return;
+    }
+
+    const result = register(username, password, country);
+    if (result.error) {
+      error.textContent = result.error;
+      error.hidden = false;
+      return;
+    }
+
+    window.location.href = 'home.html';
+  });
+</script>
+</body>
+</html>

@@ -74,4 +74,17 @@ public class WalletUtilsUTest {
         // When & Then
         assertThat(WalletUtils.isEligibleToUnlockNewWallet(user)).isTrue();
     }
+
+    @Test
+    @DisplayName("Returns false when user or subscriptions are null or empty")
+    void isEligibleToUnlockNewWallet_whenUserOrSubscriptionsNullOrEmpty_thenReturnsFalse() {
+
+        assertThat(WalletUtils.isEligibleToUnlockNewWallet(null)).isFalse();
+        assertThat(WalletUtils.isEligibleToUnlockNewWallet(User.builder().subscriptions(null).build())).isFalse();
+        assertThat(WalletUtils.isEligibleToUnlockNewWallet(User.builder().subscriptions(List.of()).build())).isFalse();
+        assertThat(WalletUtils.isEligibleToUnlockNewWallet(User.builder()
+                .subscriptions(List.of(Subscription.builder().type(SubscriptionType.PREMIUM).build()))
+                .wallets(null)
+                .build())).isFalse();
+    }
 }

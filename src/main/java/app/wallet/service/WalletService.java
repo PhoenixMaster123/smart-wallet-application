@@ -37,8 +37,6 @@ public class WalletService {
 
     private final WalletRepository walletRepository;
     private final TransactionService transactionService;
-
-    // Event publisher -> Used for emitting events
     private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
@@ -89,7 +87,7 @@ public class WalletService {
                     .email(user.getEmail())
                     .createdOn(LocalDateTime.now())
                     .build();
-            eventPublisher.publishEvent(event); // Checks all listener events and will call them
+            eventPublisher.publishEvent(event);
         }
 
         transaction.setBalanceLeft(wallet.getBalance());

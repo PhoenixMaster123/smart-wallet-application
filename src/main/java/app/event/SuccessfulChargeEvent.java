@@ -25,7 +25,3 @@ public class SuccessfulChargeEvent {
 
     private LocalDateTime createdOn;
 }
-
-// NOTE: EVENT Object -> Used to communicate between services (e.g., via message broker)
-
-// -> Event-Driven Communication

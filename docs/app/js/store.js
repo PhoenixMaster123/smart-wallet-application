@@ -80,13 +80,82 @@ function nowIso() {
 /* ------------------------------------------------------------------ session */
 
 export function signIn(username, password) {
-  if (username !== SEED_LOGIN.username || password !== SEED_LOGIN.password) {
+  const user = state.users.find((u) => u.username.toLowerCase() === (username || '').trim().toLowerCase());
+  if (!user || !user.active) {
     return false;
   }
-  const user = state.users.find((u) => u.username === username);
+  if (user.password && user.password !== password) {
+    return false;
+  }
   state.signedInUserId = user.id;
   persist();
   return true;
+}
+
+export function register(username, password, country) {
+  const cleanUsername = (username || '').trim();
+  if (!cleanUsername) {
+    return { error: 'Username cannot be blank' };
+  }
+  if (!password) {
+    return { error: 'Password cannot be blank' };
+  }
+  if (state.users.some((u) => u.username.toLowerCase() === cleanUsername.toLowerCase())) {
+    return { error: 'Username already exists' };
+  }
+
+  const userId = uuid();
+  const now = nowIso();
+  const expiryDate = new Date();
+  expiryDate.setMonth(expiryDate.getMonth() + 1);
+  expiryDate.setHours(0, 0, 0, 0);
+
+  const newUser = {
+    id: userId,
+    username: cleanUsername,
+    password,
+    firstName: '',
+    lastName: '',
+    email: '',
+    profilePicture: '',
+    role: 'USER',
+    country: country || 'BULGARIA',
+    active: true,
+    createdOn: now,
+    updatedOn: now,
+  };
+
+  const defaultWallet = {
+    id: uuid(),
+    ownerId: userId,
+    nickname: 'Vault Zero',
+    status: 'ACTIVE',
+    balance: 20.00,
+    currency: 'EUR',
+    main: true,
+    createdOn: now,
+    updatedOn: now,
+  };
+
+  const defaultSubscription = {
+    id: uuid(),
+    ownerId: userId,
+    status: 'ACTIVE',
+    period: 'MONTHLY',
+    type: 'DEFAULT',
+    price: 0.00,
+    renewalAllowed: true,
+    createdOn: now,
+    expiryOn: localIso(expiryDate),
+  };
+
+  state.users.push(newUser);
+  state.wallets.push(defaultWallet);
+  state.subscriptions.push(defaultSubscription);
+  state.signedInUserId = userId;
+  persist();
+
+  return { user: newUser };
 }
 
 export function signOut() {

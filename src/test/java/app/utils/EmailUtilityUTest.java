@@ -63,4 +63,11 @@ public class EmailUtilityUTest {
         // Then
         assertEquals(0, result);
     }
+
+    @Test
+    void getCount_whenPassNullList_thenReturnZero() {
+
+        assertEquals(0, EmailUtils.getNonFailedEmailsCount(null));
+        assertEquals(0, EmailUtils.getFailedEmailsCount(null));
+    }
 }

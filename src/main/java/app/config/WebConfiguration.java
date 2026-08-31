@@ -36,26 +36,8 @@ public class WebConfiguration implements WebMvcConfigurer {
                 .logoutSuccessUrl("/")
         );
 
-
         return httpSecurity.build();
     }
 
     // NOTE: to login with Google or to have 2FA -> we need to use OAuth2 Login
 }
-
-
-////////////////////////////////////////// Interceptors //////////////////////////////////////////////////
-
-//    private final SessionCheckInterceptor sessionCheckInterceptor;
-//
-//    @Autowired
-//    public WebConfiguration(SessionCheckInterceptor sessionCheckInterceptor) {
-//        this.sessionCheckInterceptor = sessionCheckInterceptor;
-//    }
-//
-//    @Override
-//    public void addInterceptors(InterceptorRegistry registry) {
-//        registry.addInterceptor(sessionCheckInterceptor)
-//                .addPathPatterns("/**")
-//                .excludePathPatterns("/css/**", "/js/**", "/images/**");
-//    }

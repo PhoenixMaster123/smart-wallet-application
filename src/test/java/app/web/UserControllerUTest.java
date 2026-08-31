@@ -54,7 +54,7 @@ public class UserControllerUTest {
         when(userService.getById(userId)).thenReturn(user);
 
         // When
-        ModelAndView result = userController.updateProfile(request(), userId, bindingResult);
+        ModelAndView result = userController.updateProfile(request(), bindingResult, userId);
 
         // Then
         assertEquals("profile-menu", result.getViewName());
@@ -72,7 +72,7 @@ public class UserControllerUTest {
         when(bindingResult.hasErrors()).thenReturn(false);
 
         // When
-        ModelAndView result = userController.updateProfile(editProfileRequest, userId, bindingResult);
+        ModelAndView result = userController.updateProfile(editProfileRequest, bindingResult, userId);
 
         // Then
         assertEquals("redirect:/home", result.getViewName());
@@ -165,7 +165,7 @@ public class UserControllerUTest {
                 .getAnnotation(org.springframework.security.access.prepost.PreAuthorize.class)
                 .value();
         String putRule = UserController.class
-                .getMethod("updateProfile", EditProfileRequest.class, UUID.class, BindingResult.class)
+                .getMethod("updateProfile", EditProfileRequest.class, BindingResult.class, UUID.class)
                 .getAnnotation(org.springframework.security.access.prepost.PreAuthorize.class)
                 .value();
 

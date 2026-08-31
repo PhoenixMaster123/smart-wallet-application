@@ -15,6 +15,7 @@ export const SEED_USERS = [
   {
     id: 'a4f1c9e2-3b7d-4c81-9f26-5d8e0a1b7c34',
     username: 'Vik1234',
+    password: '123123',
     firstName: '',
     lastName: '',
     email: '',
@@ -28,6 +29,7 @@ export const SEED_USERS = [
   {
     id: 'b7e2d0a4-6c19-4f53-8a7b-2e9f4c6d1a85',
     username: 'ivan123',
+    password: '123123',
     firstName: 'Ivan',
     lastName: 'Petrov',
     email: 'ivan@example.com',

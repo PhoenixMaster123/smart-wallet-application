@@ -9,10 +9,20 @@ import java.util.List;
 public class EmailUtils {
 
     public static long getNonFailedEmailsCount(List<Email> emails) {
-        return emails.stream().filter(e -> e.getStatus().equals("SUCCEEDED")).count();
+        if (emails == null) {
+            return 0;
+        }
+        return emails.stream()
+                .filter(e -> e != null && "SUCCEEDED".equals(e.getStatus()))
+                .count();
     }
 
     public static long getFailedEmailsCount(List<Email> emails) {
-        return emails.stream().filter(e -> e.getStatus().equals("FAILED")).count();
+        if (emails == null) {
+            return 0;
+        }
+        return emails.stream()
+                .filter(e -> e != null && "FAILED".equals(e.getStatus()))
+                .count();
     }
 }

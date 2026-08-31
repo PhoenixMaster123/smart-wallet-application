@@ -89,7 +89,7 @@ export function renderSidebar(active) {
   host.querySelector('[data-logout]').addEventListener('click', (e) => {
     e.preventDefault();
     signOut();
-    window.location.href = 'index.html';
+    window.location.href = 'index.html?logout=true';
   });
 }
 

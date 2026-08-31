@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class WalletController {
 
     @GetMapping
-//    @PreAuthorize( "hasRole('ADMIN')")
-    //@PreAuthorize("hasAnyRole('ADMIN', 'USER', 'MODERATOR')") // one of this roles is required
     public String getWalletPage() {
         return "wallets";
     }

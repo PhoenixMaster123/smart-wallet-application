@@ -38,8 +38,10 @@
       <button type="submit">Log In</button>
 
       <p class="form-already">
-        The demo is seeded with one account, filled in above.
-        <a href="../index.html">Read the docs</a>.
+        Don't have an account? <a href="register.html">Register now</a>!
+      </p>
+      <p class="form-already" style="margin-top: 10px; font-size: 13px;">
+        Seeded user: <code>Vik1234</code> / <code>123123</code> &middot; <a href="../index.html">Read the docs</a>
       </p>
 
     </form>
@@ -49,13 +51,17 @@
 <div class="footer"><p>&copy; 2025 Smart Wallet. All rights reserved.</p></div>
 
 <script type="module">
-  import { signIn, signOut } from './js/store.js';
+  import { signIn, signOut, currentUser } from './js/store.js';
   import { renderDemoBanner } from './js/ui.js';
 
   renderDemoBanner();
 
-  // Landing here means the session is over, in the demo as in the real app.
-  signOut();
+  const isLogout = new URLSearchParams(window.location.search).has('logout');
+  if (isLogout) {
+    signOut();
+  } else if (currentUser()) {
+    window.location.href = 'home.html';
+  }
 
   const form = document.getElementById('login-form');
   const error = document.getElementById('login-error');

@@ -67,9 +67,6 @@ public class SubscriptionService {
             return chargeResultTransaction;
         }
 
-        // 1. Create a new subscription
-        // 2. Complete current subscription
-
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expiryOn;
 
