@@ -149,7 +149,7 @@
           <td th:text="${#strings.capitalize(#strings.toLowerCase(user.country))}">Bulgaria</td> <!-- Variant 2: String Manipulation with Thymeleaf-->
           <td>
             <p th:if="${user.active}" class="status active">Active</p>
-            <p th:if="${!user.active}" class="status terminated">Active</p>
+            <p th:if="${!user.active}" class="status terminated">Inactive</p>
           </td>
           <td th:text="${#temporals.format(user.createdOn, 'dd MMM yyyy HH:mm')}">11 Dec 2024 21:09</td>
           <td>

@@ -29,7 +29,7 @@
           <select id="walletId" name="walletId"></select>
 
           <label for="toUsername">Recipient Username</label>
-          <input type="text" id="toUsername" name="recipientUsername" placeholder="Enter recipient's username" value="ivan123">
+          <input type="text" id="toUsername" name="recipientUsername" placeholder="Enter recipient's username">
 
           <label for="amount">Amount</label>
           <input type="number" id="amount" name="amount" placeholder="Enter amount to send" min="1" step="0.01">
@@ -44,9 +44,7 @@
           </button>
         </form>
 
-        <p class="demo-empty" style="padding-top:16px">
-          The seeded demo has one other account, <strong>ivan123</strong>, to receive funds.
-        </p>
+        <p class="demo-empty" style="padding-top:16px" id="recipients"></p>
       </div>
     </div>
   </div>
@@ -54,8 +52,8 @@
 <div class="footer"></div>
 
 <script type="module">
-  import { requireUser, walletsOf, transfer } from './js/store.js?v=1.0.1';
-  import { initPage, money } from './js/ui.js?v=1.0.1';
+  import { requireUser, walletsOf, transfer, otherUsers } from './js/store.js?v=1.0.2';
+  import { initPage, money } from './js/ui.js?v=1.0.2';
 
   initPage('transfers');
   const user = requireUser();
@@ -74,6 +72,16 @@
     const firstActive = walletsOf(user.id).find((w) => w.status === 'ACTIVE');
     if (firstActive) {
       select.value = firstActive.id;
+    }
+
+    // The application looks a recipient up by exact username, so the page
+    // names the accounts the seeded registry actually holds.
+    const recipients = otherUsers(user.id);
+    const toUsername = document.getElementById('toUsername');
+    if (recipients.length > 0) {
+      toUsername.value = recipients[0].username;
+      document.getElementById('recipients').innerHTML =
+        `Accounts that can receive funds: ${recipients.map((u) => `<strong>${u.username}</strong>`).join(', ')}.`;
     }
 
     const error = document.getElementById('transfer-error');

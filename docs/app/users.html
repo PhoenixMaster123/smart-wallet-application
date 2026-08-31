@@ -41,8 +41,8 @@
 <div class="footer"></div>
 
 <script type="module">
-  import { requireUser, allUsers, switchUserStatus, switchUserRole } from './js/store.js?v=1.0.1';
-  import { initPage, formatDateTime } from './js/ui.js?v=1.0.1';
+  import { requireUser, allUsers, switchUserStatus, switchUserRole, refresh } from './js/store.js?v=1.0.2';
+  import { initPage, formatDateTime } from './js/ui.js?v=1.0.2';
 
   initPage('users');
   const user = requireUser();
@@ -52,6 +52,29 @@
     } else {
       const rows = document.getElementById('rows');
       const users = allUsers();
+
+      const switchButton = (apply) => {
+        const button = document.createElement('button');
+        button.className = 'profile-actions-button';
+        button.type = 'button';
+        button.innerHTML = `
+          <p>Switch</p>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-toggle-on" viewBox="0 0 16 16">
+            <path d="M5 3a5 5 0 0 0 0 10h6a5 5 0 0 0 0-10zm6 9a4 4 0 1 1 0-8 4 4 0 0 1 0 8"></path>
+          </svg>`;
+        button.addEventListener('click', () => {
+          apply();
+          refresh();
+        });
+        return button;
+      };
+
+      const selfMarker = () => {
+        const marker = document.createElement('p');
+        marker.className = 'demo-self';
+        marker.textContent = 'You';
+        return marker;
+      };
 
       for (const u of users) {
         const tr = document.createElement('tr');
@@ -80,35 +103,16 @@
         const createdCell = document.createElement('td');
         createdCell.textContent = formatDateTime(u.createdOn);
 
+        // Taking ADMIN off yourself, or deactivating yourself, leaves an
+        // account that can no longer reach this page - and nothing in the
+        // application hands the role back. Your own row shows no buttons.
+        const isSelf = u.id === user.id;
+
         const switchStatusCell = document.createElement('td');
-        const statusBtn = document.createElement('button');
-        statusBtn.className = 'profile-actions-button';
-        statusBtn.type = 'button';
-        statusBtn.innerHTML = `
-          <p>Switch</p>
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-toggle-on" viewBox="0 0 16 16">
-            <path d="M5 3a5 5 0 0 0 0 10h6a5 5 0 0 0 0-10zm6 9a4 4 0 1 1 0-8 4 4 0 0 1 0 8"></path>
-          </svg>`;
-        statusBtn.addEventListener('click', () => {
-          switchUserStatus(u.id);
-          window.location.reload();
-        });
-        switchStatusCell.append(statusBtn);
+        switchStatusCell.append(isSelf ? selfMarker() : switchButton(() => switchUserStatus(u.id)));
 
         const switchRoleCell = document.createElement('td');
-        const roleBtn = document.createElement('button');
-        roleBtn.className = 'profile-actions-button';
-        roleBtn.type = 'button';
-        roleBtn.innerHTML = `
-          <p>Switch</p>
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-toggle-on" viewBox="0 0 16 16">
-            <path d="M5 3a5 5 0 0 0 0 10h6a5 5 0 0 0 0-10zm6 9a4 4 0 1 1 0-8 4 4 0 0 1 0 8"></path>
-          </svg>`;
-        roleBtn.addEventListener('click', () => {
-          switchUserRole(u.id);
-          window.location.reload();
-        });
-        switchRoleCell.append(roleBtn);
+        switchRoleCell.append(isSelf ? selfMarker() : switchButton(() => switchUserRole(u.id)));
 
         tr.append(idCell, usernameCell, emailCell, roleCell, countryCell, statusCell, createdCell, switchStatusCell, switchRoleCell);
         rows.append(tr);

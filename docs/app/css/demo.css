@@ -14,6 +14,14 @@
     font-family: "Roboto", sans-serif;
 }
 
+/* The signed-in admin's own row on the users page, where the two switch
+   buttons would only lock them out of their own admin pages. */
+.demo-self {
+    margin: 0;
+    color: #7b8794;
+    font-size: 12px;
+}
+
 /* Several of the app's status rules set `display`, which beats the browser's
    default `[hidden] { display: none }`. The demo toggles those elements with
    the hidden attribute, so it has to win. */

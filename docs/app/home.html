@@ -135,8 +135,8 @@
 <div class="footer"></div>
 
 <script type="module">
-  import { requireUser, mainWalletOf, activeSubscriptionOf } from './js/store.js?v=1.0.1';
-  import { initPage, formatDateTime, money } from './js/ui.js?v=1.0.1';
+  import { requireUser, mainWalletOf, activeSubscriptionOf } from './js/store.js?v=1.0.2';
+  import { initPage, formatDateTime, money } from './js/ui.js?v=1.0.2';
 
   initPage('home');
   const user = requireUser();
@@ -155,7 +155,8 @@
     set('profile-username', user.username);
     set('profile-email', user.email ? user.email : 'Edit your profile and add your email');
     set('profile-joined', formatDateTime(user.createdOn));
-    set('profile-country', user.country);
+    // #strings.capitalize(#strings.toLowerCase(...)), the way users.html shows it.
+    set('profile-country', user.country.charAt(0) + user.country.slice(1).toLowerCase());
     document.getElementById(user.active ? 'status-active' : 'status-inactive').hidden = false;
 
     const wallet = mainWalletOf(user.id);
